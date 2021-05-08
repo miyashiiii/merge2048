@@ -278,11 +278,11 @@ public static class Board
         switch (direction)
         {
             case "up":
-                return;
-                break;
+                return; //todo
+                // break;
             case "down":
-                return;
-                break;
+                return; //todo
+                // break;
             case "left":
                 rows = new[]
                 {
@@ -303,7 +303,7 @@ public static class Board
                     _board.GetRange(8, 4).ToArray().Reverse().ToArray(),
                     _board.GetRange(12, 4).ToArray().Reverse().ToArray(),
                 };
-                int[][] reverseRows = new int[4][];
+                var reverseRows = new int[4][];
                 var idx = 0;
                 foreach (var row in rows)
                 {
