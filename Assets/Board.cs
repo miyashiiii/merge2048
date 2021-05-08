@@ -130,6 +130,7 @@ public static class Board
         if (emptyIndices.Count == 0)
         {
             // todo throw error
+            Finish();
             return;
         }
 
@@ -151,6 +152,7 @@ public static class Board
 
     private static void Finish()
     {
+        Status = StatusFinish;
         Debug.Log("Finish");
     }
 
@@ -264,16 +266,22 @@ public static class Board
 
     public static void Update(string direction)
     {
+        if (Status == StatusFinish)
+        {
+            return;
+        } 
         Util.ListDebugLog("board: ", _board);
-        int[][] merged4 = new int[4][];
-        int[][] idxAfterMoveList4 = new int[4][];
-        int[][] isNew4 = new int[4][];
+        var merged4 = new int[4][];
+        var idxAfterMoveList4 = new int[4][];
+        var isNew4 = new int[4][];
         int[][] rows;
         switch (direction)
         {
             case "up":
+                return;
                 break;
             case "down":
+                return;
                 break;
             case "left":
                 rows = new[]
