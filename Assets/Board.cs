@@ -20,13 +20,15 @@ public static class Board
     private static GameObject _canvas;
     private static readonly Vector2[] PosArray = new Vector2[16];
 
-    // static Dictionary<PanelManager.Panel, float> panelMap;
     private static Dictionary<int, float> _panelMap;
 
+    private static PanelManager _pm;
+    
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
-        PanelManager.SetNext();
 
+        _pm = new PanelManager();
+        
         // panelMap= new Dictionary<PanelManager.Panel, float>
         _panelMap = new Dictionary<int, float>
         {
@@ -142,9 +144,9 @@ public static class Board
 
     private static void PUT(int panelNum, int idx)
     {
-        var p = PanelManager.GetPanelByValue(panelNum);
+        var p = _pm.Panels[panelNum];
         Debug.Log("Put");
-        var instance = Object.Instantiate(p.Obj, PosArray[idx], Quaternion.identity);
+        var instance = Object.Instantiate(p, PosArray[idx], Quaternion.identity);
         instance.transform.SetParent(_canvas.transform);
         _board[idx] = panelNum;
         _instances.Add(instance);
