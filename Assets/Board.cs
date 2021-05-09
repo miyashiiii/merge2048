@@ -160,17 +160,17 @@ public static class Board
 
     private static (int[][], int[][], int[][]) CalcMove(int[][] rows)
     {
-        var idxAfterMoveList4 = Enumerable.Repeat<int[]>(null, 4).ToArray();
+        var moveBoard = Enumerable.Repeat<int[]>(null, 4).ToArray();
 
-        var merged4 = Enumerable.Repeat<int[]>(null, 4).ToArray();
-        var isNew4 = Enumerable.Repeat<int[]>(null, 4).ToArray();
+        var mergedBoard = Enumerable.Repeat<int[]>(null, 4).ToArray();
+        var isNewBoard = Enumerable.Repeat<int[]>(null, 4).ToArray();
 
         var rowCount = 0;
         foreach (var row in rows)
         {
-            var idxAfterMove = Enumerable.Repeat(-1, 4).ToArray(); // 移動後のidx。rowsに対応
-            var merged = Enumerable.Repeat(0, 4).ToArray(); // マージ後状態
-            var isNew = Enumerable.Repeat(0, 4).ToArray(); //マージフラグ。mergedに対応。1がマージあり
+            var moveRow = Enumerable.Repeat(-1, 4).ToArray(); // 移動後のidx。rowsに対応
+            var mergedRow = Enumerable.Repeat(0, 4).ToArray(); // マージ後状態
+            var isNewRow = Enumerable.Repeat(0, 4).ToArray(); //マージフラグ。mergedに対応。1がマージあり
 
             var colCount = 0;
             var mergedColCount = 0;
@@ -181,7 +181,7 @@ public static class Board
                 // empty 
                 if (num == 0)
                 {
-                    idxAfterMove[colCount] = -1;
+                    moveRow[colCount] = -1;
                     colCount++;
                     continue;
                 }
@@ -189,22 +189,22 @@ public static class Board
                 if (before == 0) //before考慮不要
                 {
                     before = num;
-                    idxAfterMove[colCount] = mergedColCount;
+                    moveRow[colCount] = mergedColCount;
                     // mergedへのAddは保留
                 }
                 else if (before == num) // beforeと同パネル -> マージ
                 {
-                    idxAfterMove[colCount] = mergedColCount;
+                    moveRow[colCount] = mergedColCount;
 
-                    merged[mergedColCount] = num * 2;
-                    isNew[mergedColCount] = 1;
+                    mergedRow[mergedColCount] = num * 2;
+                    isNewRow[mergedColCount] = 1;
                     mergedColCount++;
                     before = 0;
                 }
                 else // beforeと別パネル
                 {
-                    idxAfterMove[colCount] = mergedColCount;
-                    merged[mergedColCount] = before;
+                    moveRow[colCount] = mergedColCount;
+                    mergedRow[mergedColCount] = before;
                     mergedColCount++;
                     // mergedへのAddは保留
                     before = num;
@@ -212,26 +212,26 @@ public static class Board
 
                 if (mergedColCount == colCount)
                 {
-                    idxAfterMove[colCount] = -1;
+                    moveRow[colCount] = -1;
                 }
 
                 colCount++;
             }
 
             Util.ListDebugLog(rowCount + "row", row); //todo
-            Util.ListDebugLog(rowCount + "idxAfterMove", idxAfterMove); //todo
-            Util.ListDebugLog(rowCount + "merged", merged); //todo
-            Util.ListDebugLog(rowCount + "isnew", isNew); //todo
-            merged[mergedColCount] = before;
+            Util.ListDebugLog(rowCount + "idxAfterMove", moveRow); //todo
+            Util.ListDebugLog(rowCount + "merged", mergedRow); //todo
+            Util.ListDebugLog(rowCount + "isNew", isNewRow); //todo
+            mergedRow[mergedColCount] = before;
 
-            idxAfterMoveList4[rowCount] = idxAfterMove;
-            merged4[rowCount] = merged;
-            isNew4[rowCount] = isNew;
+            moveBoard[rowCount] = moveRow;
+            mergedBoard[rowCount] = mergedRow;
+            isNewBoard[rowCount] = isNewRow;
 
             rowCount++;
         }
 
-        return (merged4, idxAfterMoveList4, isNew4);
+        return (mergedBoard, moveBoard, isNewBoard);
     }
 
     private static void FlushInstances()
@@ -266,6 +266,16 @@ public static class Board
         }
     }
 
+    static int[][] FlipBoard(int[][] board)
+    {
+        var reverseBoard = new int[4][];
+        for (var i = 0; i < 4; i++)
+        {
+            reverseBoard[i] = board[i].Reverse().ToArray();
+        }
+
+        return reverseBoard;
+    }
     public static void Update(string direction)
     {
         if (Status == StatusFinish)
@@ -273,10 +283,18 @@ public static class Board
             return;
         } 
         Util.ListDebugLog("board: ", _board);
-        var merged4 = new int[4][];
-        var idxAfterMoveList4 = new int[4][];
-        var isNew4 = new int[4][];
-        int[][] rows;
+        int[][] moveBoard;
+        int[][] mergedBoard;
+        int[][] isNewBoard;
+        
+        var rows = new[]
+        {
+            _board.GetRange(0, 4).ToArray(),
+            _board.GetRange(4, 4).ToArray(),
+            _board.GetRange(8, 4).ToArray(),
+            _board.GetRange(12, 4).ToArray(),
+        };
+        
         switch (direction)
         {
             case "up":
@@ -286,46 +304,17 @@ public static class Board
                 return; //todo
                 // break;
             case "left":
-                rows = new[]
-                {
-                    _board.GetRange(0, 4).ToArray(),
-                    _board.GetRange(4, 4).ToArray(),
-                    _board.GetRange(8, 4).ToArray(),
-                    _board.GetRange(12, 4).ToArray(),
-                };
-                (merged4, idxAfterMoveList4, isNew4) = CalcMove(rows);
+                (mergedBoard, moveBoard, isNewBoard) = CalcMove(rows);
 
 
                 break; // case "left"
             case "right":
-                rows = new[]
-                {
-                    _board.GetRange(0, 4).ToArray().Reverse().ToArray(),
-                    _board.GetRange(4, 4).ToArray().Reverse().ToArray(),
-                    _board.GetRange(8, 4).ToArray().Reverse().ToArray(),
-                    _board.GetRange(12, 4).ToArray().Reverse().ToArray(),
-                };
-                var reverseRows = new int[4][];
-                var idx = 0;
-                foreach (var row in rows)
-                {
-                    reverseRows[idx] = row.Reverse().ToArray();
-                    idx++;
-                }
-
+                var reverseRows = FlipBoard(rows);
                 var (rMerged4, rIdxAfterMoveList4, rIsNew4) = CalcMove(reverseRows);
 
-                for (var i = 0; i < 4; i++)
-                {
-                    var merged = rMerged4[i];
-                    merged4[i] = merged.Reverse().ToArray();
-
-                    var idxAfterMoveList = rIdxAfterMoveList4[i];
-                    idxAfterMoveList4[i] = idxAfterMoveList.Reverse().ToArray();
-
-                    var isNew = rIsNew4[i];
-                    isNew4[i] = isNew.Reverse().ToArray();
-                }
+                mergedBoard = FlipBoard(rMerged4);
+                moveBoard = FlipBoard(rIdxAfterMoveList4);
+                isNewBoard = FlipBoard(rIsNew4);
 
                 break;
             default:
@@ -333,12 +322,20 @@ public static class Board
         }
 
         // idxAfterMoveListに従って移動アニメーション
+        MoveAnimation(moveBoard);
         // merged4 に従って画面更新
-        UpdatePanels(merged4);
+        UpdatePanels(mergedBoard);
         RandPut();
         // isNewに従って新規作成アニメーション
+        CreateAnimation(isNewBoard);
     }
 
+    public static void MoveAnimation(int[][] idxAfterMoveBoard)
+    {
+    }
+    public static void CreateAnimation(int[][] isNew)
+    {
+    }
     public static void Reset()
     {
     }
