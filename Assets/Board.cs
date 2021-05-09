@@ -33,10 +33,11 @@ public static class Board
         // panelMap= new Dictionary<PanelManager.Panel, float>
         _panelMap = new Dictionary<int, float>
         {
-            {2, 1.0f},
-            {4, 0f},
+            {2, 0.9f},
+            {4, 0.1f},
             {8, 0f},
         };
+        
         _canvas = GameObject.Find("Canvas");
 
         MakePosArray(parentPos, cellSize, spacing);
