@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 public static class Board
 {
@@ -23,12 +25,11 @@ public static class Board
     private static Dictionary<int, float> _panelMap;
 
     private static PanelManager _pm;
-    
+
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
-
         _pm = new PanelManager();
-        
+
         // panelMap= new Dictionary<PanelManager.Panel, float>
         _panelMap = new Dictionary<int, float>
         {
@@ -131,8 +132,7 @@ public static class Board
         var emptyIndices = GetEmptyIndices();
         if (emptyIndices.Count == 0)
         {
-            // todo throw error
-            Finish();
+            // do nothing if cannot move
             return;
         }
 
@@ -276,66 +276,195 @@ public static class Board
 
         return reverseBoard;
     }
+
+    private static int[][] RotateBoardClockwise(int[][] board)
+    {
+        const int rows = 4;
+        const int cols = 4;
+        var t = new int[4][];
+        for (var j = 0; j < cols; j++)
+        {
+            t[j] = new int[4];
+        }
+
+        for (var i = 0; i < rows; i++)
+        {
+            for (var j = 0; j < cols; j++)
+            {
+                t[j][rows - i - 1] = board[i][j];
+            }
+        }
+
+        return t;
+    }
+
+    private static int[][] RotateBoardAnticlockwise(int[][] board)
+    {
+        const int rows = 4;
+        const int cols = 4;
+        var t = new int[4][];
+        for (var j = 0; j < cols; j++)
+        {
+            t[j] = new int[4];
+        }
+
+        for (var i = 0; i < rows; i++)
+        {
+            for (var j = 0; j < cols; j++)
+            {
+                t[cols - j - 1][i] = board[i][j];
+            }
+        }
+
+        return t;
+    }
+
+    private static int[][] NoRotate(int[][] board)
+    {
+        return board;
+    }
+
+
+    static (int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard, Func<int[][], int[][]> convertFunc,
+        Func<int[][], int[][]> reverseFunc)
+    {
+        int[][] moveBoard;
+        int[][] mergedBoard;
+        int[][] isNewBoard;
+
+        int[][] tmpMergedBoard;
+        int[][] tmpMoveBoard;
+        int[][] tmpIsNewBoard;
+        var rotate270Board = convertFunc(jagBoard);
+        (tmpMergedBoard, tmpMoveBoard, tmpIsNewBoard) = CalcMove(rotate270Board);
+
+        mergedBoard = reverseFunc(tmpMergedBoard);
+        moveBoard = reverseFunc(tmpMoveBoard);
+        isNewBoard = reverseFunc(tmpIsNewBoard);
+        return (mergedBoard, moveBoard, isNewBoard);
+    }
+
+    private static (int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, string direction)
+    {
+        Func<int[][], int[][]> convertFunc;
+        Func<int[][], int[][]> reverseFunc;
+
+        switch (direction)
+        {
+            case "up":
+                convertFunc = RotateBoardAnticlockwise;
+                reverseFunc = RotateBoardClockwise;
+                break;
+            case "down":
+                convertFunc = RotateBoardClockwise;
+                reverseFunc = RotateBoardAnticlockwise;
+                break;
+            case "left":
+                convertFunc = NoRotate;
+                reverseFunc = NoRotate;
+                break;
+            case "right":
+                convertFunc = FlipBoard;
+                reverseFunc = FlipBoard;
+                break;
+            default:
+                Debug.Log("invalid direction");
+                return (new int[][] { }, new int[][] { }, new int[][] { });
+        }
+
+        return CalcMoveWithConvert(jagBoard, convertFunc, reverseFunc);
+    }
+
     public static void Update(string direction)
     {
         if (Status == StatusFinish)
         {
             return;
-        } 
+        }
+
         Util.ListDebugLog("board: ", _board);
         int[][] moveBoard;
         int[][] mergedBoard;
         int[][] isNewBoard;
-        
-        var rows = new[]
+
+        var jagBoard = new[]
         {
             _board.GetRange(0, 4).ToArray(),
             _board.GetRange(4, 4).ToArray(),
             _board.GetRange(8, 4).ToArray(),
             _board.GetRange(12, 4).ToArray(),
         };
-        
+
         switch (direction)
         {
             case "up":
-                return; //todo
-                // break;
+                (mergedBoard, moveBoard, isNewBoard) =
+                    CalcMoveWithConvert(jagBoard, RotateBoardAnticlockwise, RotateBoardClockwise);
+                break;
+
             case "down":
-                return; //todo
-                // break;
+                (mergedBoard, moveBoard, isNewBoard) =
+                    CalcMoveWithConvert(jagBoard, RotateBoardClockwise, RotateBoardAnticlockwise);
+                break;
+
             case "left":
-                (mergedBoard, moveBoard, isNewBoard) = CalcMove(rows);
+                (mergedBoard, moveBoard, isNewBoard) = CalcMove(jagBoard);
+                break;
 
-
-                break; // case "left"
             case "right":
-                var reverseRows = FlipBoard(rows);
-                var (rMerged4, rIdxAfterMoveList4, rIsNew4) = CalcMove(reverseRows);
-
-                mergedBoard = FlipBoard(rMerged4);
-                moveBoard = FlipBoard(rIdxAfterMoveList4);
-                isNewBoard = FlipBoard(rIsNew4);
+                (mergedBoard, moveBoard, isNewBoard) = CalcMoveWithConvert(jagBoard, FlipBoard, FlipBoard);
 
                 break;
             default:
                 return;
         }
 
-        // idxAfterMoveListに従って移動アニメーション
-        MoveAnimation(moveBoard);
-        // merged4 に従って画面更新
+        // moveBoardに従って移動アニメーション
+        MoveAnimation(moveBoard, direction);
+        // mergedBoard に従って画面更新
         UpdatePanels(mergedBoard);
         RandPut();
-        // isNewに従って新規作成アニメーション
+
+        // isNewBoardに従って新規作成アニメーション
         CreateAnimation(isNewBoard);
+
+        CheckFinish(jagBoard);
     }
 
-    public static void MoveAnimation(int[][] idxAfterMoveBoard)
+    private static void CheckFinish(int[][] jagBoard)
+    {
+        if (GetEmptyIndices().Count > 1)
+        {
+            return;
+        }
+
+        var (uBoard, _, _) = CalcMoveByDirection(jagBoard, "up");
+        var (dBoard, _, _) = CalcMoveByDirection(jagBoard, "down");
+        var (lBoard, _, _) = CalcMoveByDirection(jagBoard, "left");
+        var (rBoard, _, _) = CalcMoveByDirection(jagBoard, "right");
+
+        //flatten
+        var array = uBoard.SelectMany(x => x).ToArray();
+        var uArray = uBoard.SelectMany(x => x).ToArray();
+        var dArray = dBoard.SelectMany(x => x).ToArray();
+        var lArray = lBoard.SelectMany(x => x).ToArray();
+        var rArray = rBoard.SelectMany(x => x).ToArray();
+
+        if (array.SequenceEqual(uArray) && array.SequenceEqual(dArray) &&
+            array.SequenceEqual(lArray) && array.SequenceEqual(rArray))
+        {
+            Finish();
+        }
+    }
+
+    public static void MoveAnimation(int[][] moveBoard, string direction)
     {
     }
+
     public static void CreateAnimation(int[][] isNew)
     {
     }
+
     public static void Reset()
     {
     }
