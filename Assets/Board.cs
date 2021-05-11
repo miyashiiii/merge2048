@@ -7,10 +7,11 @@ using Random = UnityEngine.Random;
 
 public static class Board
 {
-    private const int StatusInPlay = 0;
-    private const int StatusFinish = 1;
+    public const int StatusWaitingInput = 0;
+    public const int StatusInAnimation = 1;
+    public const int StatusFinish = 2;
 
-    public static int Status = StatusInPlay;
+    public static int Status = StatusWaitingInput;
 
     private static GameObject _srcObj;
 
@@ -37,7 +38,7 @@ public static class Board
             {4, 0.1f},
             {8, 0f},
         };
-        
+
         _canvas = GameObject.Find("Canvas");
 
         MakePosArray(parentPos, cellSize, spacing);
@@ -55,11 +56,17 @@ public static class Board
         RandPut();
     }
 
+    private static Vector2 CellSize;
+    private static Vector2 Spacing;
+
     private static void MakePosArray(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
         Debug.Log("position:" + parentPos);
         Debug.Log("cellSize:" + cellSize);
         Debug.Log("spacing:" + spacing);
+
+        CellSize = cellSize;
+        Spacing = spacing;
 
         var colcount = 0;
         var rowcount = 0;
@@ -141,7 +148,7 @@ public static class Board
         PUT(p, randIdx);
     }
 
-    static List<GameObject> _instances = new List<GameObject>();
+    static GameObject[] _instances = new GameObject[16];
 
     private static void PUT(int panelNum, int idx)
     {
@@ -150,7 +157,7 @@ public static class Board
         var instance = Object.Instantiate(p, PosArray[idx], Quaternion.identity);
         instance.transform.SetParent(_canvas.transform);
         _board[idx] = panelNum;
-        _instances.Add(instance);
+        _instances[idx] = instance;
     }
 
     private static void Finish()
@@ -169,7 +176,7 @@ public static class Board
         var rowCount = 0;
         foreach (var row in rows)
         {
-            var moveRow = Enumerable.Repeat(-1, 4).ToArray(); // 移動後のidx。rowsに対応
+            var moveRow = Enumerable.Repeat(0, 4).ToArray(); // 移動するマス数。rowsに対応
             var mergedRow = Enumerable.Repeat(0, 4).ToArray(); // マージ後状態
             var isNewRow = Enumerable.Repeat(0, 4).ToArray(); //マージフラグ。mergedに対応。1がマージあり
 
@@ -182,7 +189,7 @@ public static class Board
                 // empty 
                 if (num == 0)
                 {
-                    moveRow[colCount] = -1;
+                    moveRow[colCount] = 0;
                     colCount++;
                     continue;
                 }
@@ -190,12 +197,12 @@ public static class Board
                 if (before == 0) //before考慮不要
                 {
                     before = num;
-                    moveRow[colCount] = mergedColCount;
+                    moveRow[colCount] = colCount - mergedColCount;
                     // mergedへのAddは保留
                 }
                 else if (before == num) // beforeと同パネル -> マージ
                 {
-                    moveRow[colCount] = mergedColCount;
+                    moveRow[colCount] = colCount - mergedColCount;
 
                     mergedRow[mergedColCount] = num * 2;
                     isNewRow[mergedColCount] = 1;
@@ -204,7 +211,7 @@ public static class Board
                 }
                 else // beforeと別パネル
                 {
-                    moveRow[colCount] = mergedColCount;
+                    moveRow[colCount] = colCount - mergedColCount;
                     mergedRow[mergedColCount] = before;
                     mergedColCount++;
                     // mergedへのAddは保留
@@ -213,7 +220,7 @@ public static class Board
 
                 if (mergedColCount == colCount)
                 {
-                    moveRow[colCount] = -1;
+                    moveRow[colCount] = 0;
                 }
 
                 colCount++;
@@ -237,24 +244,24 @@ public static class Board
 
     private static void FlushInstances()
     {
-        foreach (var instance in _instances)
+        for (var i = 0; i < _instances.Length; i++)
         {
-            Object.Destroy(instance);
+            if (_instances[i] == null) continue;
+            Object.Destroy(_instances[i]);
+            _instances[i] = null;
         }
-
-        _instances = new List<GameObject>();
     }
 
-    static void UpdatePanels(int[][] merged4)
+    static void UpdatePanels()
     {
-        FlushInstances();
+        // FlushInstances();
         int col = 0;
         int row = 0;
         for (var i = 0; i < 16; i++)
         {
             Debug.Log("row: " + row);
             Debug.Log("col: " + col);
-            PUT(merged4[row][col], i);
+            PUT(MergedBoard[row][col], i);
             if (col == 3)
             {
                 col = 0;
@@ -376,8 +383,13 @@ public static class Board
         return CalcMoveWithConvert(jagBoard, convertFunc, reverseFunc);
     }
 
+    private static int[][] MergedBoard;
+    private static int[][] IsNewBoard;
+
     public static void Update(string direction)
     {
+        directionInAnimation = direction;
+
         if (Status == StatusFinish)
         {
             return;
@@ -396,44 +408,21 @@ public static class Board
             _board.GetRange(12, 4).ToArray(),
         };
 
-        switch (direction)
-        {
-            case "up":
-                (mergedBoard, moveBoard, isNewBoard) =
-                    CalcMoveWithConvert(jagBoard, RotateBoardAnticlockwise, RotateBoardClockwise);
-                break;
-
-            case "down":
-                (mergedBoard, moveBoard, isNewBoard) =
-                    CalcMoveWithConvert(jagBoard, RotateBoardClockwise, RotateBoardAnticlockwise);
-                break;
-
-            case "left":
-                (mergedBoard, moveBoard, isNewBoard) = CalcMove(jagBoard);
-                break;
-
-            case "right":
-                (mergedBoard, moveBoard, isNewBoard) = CalcMoveWithConvert(jagBoard, FlipBoard, FlipBoard);
-
-                break;
-            default:
-                return;
-        }
-
+        (MergedBoard, moveBoardInAnimation, IsNewBoard) = CalcMoveByDirection(jagBoard, direction);
+        directionInAnimation = direction;
         // moveBoardに従って移動アニメーション
-        MoveAnimation(moveBoard, direction);
-        // mergedBoard に従って画面更新
-        UpdatePanels(mergedBoard);
-        RandPut();
-
-        // isNewBoardに従って新規作成アニメーション
-        CreateAnimation(isNewBoard);
-
-        CheckFinish(jagBoard);
+        var IsMove = StartMovingAnimation();
     }
 
-    private static void CheckFinish(int[][] jagBoard)
+    private static void CheckFinish()
     {
+        var jagBoard = new[]
+        {
+            _board.GetRange(0, 4).ToArray(),
+            _board.GetRange(4, 4).ToArray(),
+            _board.GetRange(8, 4).ToArray(),
+            _board.GetRange(12, 4).ToArray(),
+        };
         if (GetEmptyIndices().Count > 1)
         {
             return;
@@ -458,12 +447,64 @@ public static class Board
         }
     }
 
-    public static void MoveAnimation(int[][] moveBoard, string direction)
+    private static int MoveFrames = 5;
+    private static int CountMoveFrames = 0;
+
+    private static int[][] moveBoardInAnimation;
+    private static string directionInAnimation;
+
+    static bool MovingAnimation(bool delete = false)
+    {
+        return false;
+    }
+
+    public static bool StartMovingAnimation()
+    {
+        var isMove = MovingAnimation();
+        // 移動するパネルの有無をチェック
+        if (isMove)
+        {
+            Status = StatusInAnimation;
+        }
+
+        return isMove;
+    }
+
+    public static void StartCreatingAnimation()
     {
     }
 
-    public static void CreateAnimation(int[][] isNew)
+    public static void ContinueAnimation()
     {
+        CountMoveFrames++;
+        Debug.Log("CountMoveFrames: " + CountMoveFrames);
+        if (CountMoveFrames != MoveFrames)
+        {
+            MovingAnimation();
+            return;
+        }
+
+        // finish animation
+        // 移動したinstanceを削除
+        MovingAnimation(delete: true);
+        CountMoveFrames = 0;
+        Status = StatusWaitingInput;
+
+        // MergedBoard に従って画面更新
+        UpdatePanels();
+        RandPut();
+
+        // IsNewBoardに従って新規作成アニメーション
+        StartCreatingAnimation();
+
+        // MergedBoard に従って画面更新
+        UpdatePanels();
+        RandPut();
+
+        // isNewBoardに従って新規作成アニメーション
+        StartCreatingAnimation();
+
+        CheckFinish();
     }
 
     public static void Reset()
