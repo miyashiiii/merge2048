@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class BoardManager : MonoBehaviour
 {
     public GameObject debugTextBox; // Textオブジェクト
-    
+
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
 
@@ -23,6 +23,18 @@ public class BoardManager : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        Debug.Log("board status: "+Board.Status);
+        if (Board.Status == Board.StatusInAnimation)
+        {
+            Board.ContinueAnimation();
+            return;
+        }
+
+        if (Board.Status == Board.StatusFinish)
+        {
+            CheckKeyDown();
+        }
+
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             _touchStartPos = new Vector3(Input.mousePosition.x,
@@ -37,6 +49,10 @@ public class BoardManager : MonoBehaviour
                 Input.mousePosition.z);
             GetDirection();
         }
+    }
+
+    void CheckKeyDown()
+    {
     }
 
 
