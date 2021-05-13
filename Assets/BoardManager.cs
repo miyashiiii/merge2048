@@ -89,7 +89,7 @@ public class BoardManager : MonoBehaviour
             direction = "touch";
         }
 
-        Debug.Log(direction);
+        // Debug.Log(direction);
         debugTextBox.GetComponent<Text>().text = direction;
         Board.Update(direction);
         // Board.Update("left");

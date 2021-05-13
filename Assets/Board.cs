@@ -43,7 +43,7 @@ public static class Board
 
         MakePosArray(parentPos, cellSize, spacing);
 
-        Debug.Log("Board Init");
+        // Debug.Log("Board Init");
         _board = new List<int>
         {
             0, 0, 0, 0,
@@ -61,9 +61,9 @@ public static class Board
 
     private static void MakePosArray(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
-        Debug.Log("position:" + parentPos);
-        Debug.Log("cellSize:" + cellSize);
-        Debug.Log("spacing:" + spacing);
+        // Debug.Log("position:" + parentPos);
+        // Debug.Log("cellSize:" + cellSize);
+        // Debug.Log("spacing:" + spacing);
 
         CellSize = cellSize;
         Spacing = spacing;
@@ -109,9 +109,9 @@ public static class Board
     private static List<int> GetIndices(int p)
     {
         var idx = _board.IndexOf(p);
-        Debug.Log("board length: " + _board.Count);
-        Debug.Log("board: " + _board);
-        Debug.Log("p: " + p);
+        // Debug.Log("board length: " + _board.Count);
+        // Debug.Log("board: " + _board);
+        // Debug.Log("p: " + p);
         var result = new List<int>();
         if (idx < 0) return result;
 
@@ -163,11 +163,12 @@ public static class Board
     private static void Finish()
     {
         Status = StatusFinish;
-        Debug.Log("Finish");
+        // Debug.Log("Finish");
     }
 
-    private static (int[][], int[][], int[][]) CalcMove(int[][] rows)
+    private static (bool, int[][], int[][], int[][]) CalcMove(int[][] rows)
     {
+        var isMove = false;
         var moveBoard = Enumerable.Repeat<int[]>(null, 4).ToArray();
 
         var mergedBoard = Enumerable.Repeat<int[]>(null, 4).ToArray();
@@ -222,14 +223,20 @@ public static class Board
                 {
                     moveRow[colCount] = 0;
                 }
+                else
+                {
+                    isMove = true;
+                }
 
                 colCount++;
             }
 
-            Util.ListDebugLog(rowCount + "row", row); //todo
-            Util.ListDebugLog(rowCount + "idxAfterMove", moveRow); //todo
-            Util.ListDebugLog(rowCount + "merged", mergedRow); //todo
-            Util.ListDebugLog(rowCount + "isNew", isNewRow); //todo
+            // Util.ListDebugLog(rowCount + "row", row); //todo
+            // Util.ListDebugLog(rowCount + "idxAfterMove", moveRow); //todo
+            // Util.ListDebugLog(rowCount + "merged", mergedRow); //todo
+            // Util.ListDebugLog(rowCount + "isNew", isNewRow); //todo
+
+
             mergedRow[mergedColCount] = before;
 
             moveBoard[rowCount] = moveRow;
@@ -239,7 +246,7 @@ public static class Board
             rowCount++;
         }
 
-        return (mergedBoard, moveBoard, isNewBoard);
+        return (isMove, mergedBoard, moveBoard, isNewBoard);
     }
 
     private static void FlushInstances()
@@ -259,8 +266,8 @@ public static class Board
         int row = 0;
         for (var i = 0; i < 16; i++)
         {
-            Debug.Log("row: " + row);
-            Debug.Log("col: " + col);
+            // Debug.Log("row: " + row);
+            // Debug.Log("col: " + col);
             PUT(MergedBoard[row][col], i);
             if (col == 3)
             {
@@ -333,26 +340,26 @@ public static class Board
     }
 
 
-    static (int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard, Func<int[][], int[][]> convertFunc,
+    static (bool, int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard, Func<int[][], int[][]> convertFunc,
         Func<int[][], int[][]> reverseFunc)
     {
         int[][] moveBoard;
         int[][] mergedBoard;
         int[][] isNewBoard;
 
-        int[][] tmpMergedBoard;
-        int[][] tmpMoveBoard;
-        int[][] tmpIsNewBoard;
+        // int[][] tmpMergedBoard;
+        // int[][] tmpMoveBoard;
+        // int[][] tmpIsNewBoard;
         var rotate270Board = convertFunc(jagBoard);
-        (tmpMergedBoard, tmpMoveBoard, tmpIsNewBoard) = CalcMove(rotate270Board);
+        var (isMove, tmpMergedBoard, tmpMoveBoard, tmpIsNewBoard) = CalcMove(rotate270Board);
 
         mergedBoard = reverseFunc(tmpMergedBoard);
         moveBoard = reverseFunc(tmpMoveBoard);
         isNewBoard = reverseFunc(tmpIsNewBoard);
-        return (mergedBoard, moveBoard, isNewBoard);
+        return (isMove, mergedBoard, moveBoard, isNewBoard);
     }
 
-    private static (int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, string direction)
+    private static (bool, int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, string direction)
     {
         Func<int[][], int[][]> convertFunc;
         Func<int[][], int[][]> reverseFunc;
@@ -376,8 +383,8 @@ public static class Board
                 reverseFunc = FlipBoard;
                 break;
             default:
-                Debug.Log("invalid direction");
-                return (new int[][] { }, new int[][] { }, new int[][] { });
+                // Debug.Log("invalid direction");
+                return (false, new int[][] { }, new int[][] { }, new int[][] { });
         }
 
         return CalcMoveWithConvert(jagBoard, convertFunc, reverseFunc);
@@ -407,11 +414,17 @@ public static class Board
             _board.GetRange(8, 4).ToArray(),
             _board.GetRange(12, 4).ToArray(),
         };
+        bool isMove;
+        (isMove, MergedBoard, moveBoardInAnimation, IsNewBoard) = CalcMoveByDirection(jagBoard, direction);
 
-        (MergedBoard, moveBoardInAnimation, IsNewBoard) = CalcMoveByDirection(jagBoard, direction);
+        if (!isMove)
+        {
+            return;
+        }
+
         directionInAnimation = direction;
         // moveBoardに従って移動アニメーション
-        var IsMove = StartMovingAnimation();
+        StartMovingAnimation();
     }
 
     private static void CheckFinish()
@@ -428,10 +441,10 @@ public static class Board
             return;
         }
 
-        var (uBoard, _, _) = CalcMoveByDirection(jagBoard, "up");
-        var (dBoard, _, _) = CalcMoveByDirection(jagBoard, "down");
-        var (lBoard, _, _) = CalcMoveByDirection(jagBoard, "left");
-        var (rBoard, _, _) = CalcMoveByDirection(jagBoard, "right");
+        var (_, uBoard, _, _) = CalcMoveByDirection(jagBoard, "up");
+        var (_, dBoard, _, _) = CalcMoveByDirection(jagBoard, "down");
+        var (_, lBoard, _, _) = CalcMoveByDirection(jagBoard, "left");
+        var (_, rBoard, _, _) = CalcMoveByDirection(jagBoard, "right");
 
         //flatten
         var array = uBoard.SelectMany(x => x).ToArray();
@@ -453,14 +466,13 @@ public static class Board
     private static int[][] moveBoardInAnimation;
     private static string directionInAnimation;
 
-    static bool MovingAnimation(bool delete = false)
+    static void MovingAnimation(bool delete = false)
     {
         if (directionInAnimation != "left")
         {
             // return false;
         }
 
-        var IsMove = false;
         for (var i = 0; i < moveBoardInAnimation.Length; i++)
         {
             for (var j = 0; j < moveBoardInAnimation[i].Length; j++)
@@ -483,23 +495,17 @@ public static class Board
                     var distance = moveSquare * -(CellSize.x + Spacing.x) / MoveFrames;
                     _instances[i * 4 + j].transform.Translate(distance, 0, 0);
                 }
-
-                IsMove = true;
             }
         }
 
-        return IsMove;
+        return;
     }
 
-    public static bool StartMovingAnimation()
+    public static void StartMovingAnimation()
     {
-        var isMove = MovingAnimation();
-        if (isMove)
-        {
-            Status = StatusInAnimation;
-        }
-
-        return isMove;
+        MovingAnimation();
+        Status = StatusInAnimation;
+        
     }
 
     public static void StartCreatingAnimation()
@@ -509,7 +515,7 @@ public static class Board
     public static void ContinueAnimation()
     {
         CountMoveFrames++;
-        Debug.Log("CountMoveFrames: " + CountMoveFrames);
+        // Debug.Log("CountMoveFrames: " + CountMoveFrames);
         if (CountMoveFrames != MoveFrames)
         {
             MovingAnimation();
