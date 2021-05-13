@@ -24,12 +24,17 @@ public class BoardManager : MonoBehaviour
     private void Update()
     {
         Debug.Log("board status: "+Board.Status);
-        if (Board.Status == Board.StatusInAnimation)
+        if (Board.Status == Board.StatusInMovingAnimation)
         {
-            Board.ContinueAnimation();
+            Board.ContinueMovingAnimation();
+            return;
+        }  
+        if (Board.Status == Board.StatusInCreateAnimation)
+        {
+            Board.ContinueCreatingAnimation();
             return;
         }
-
+        
         if (Board.Status == Board.StatusFinish)
         {
             CheckKeyDown();

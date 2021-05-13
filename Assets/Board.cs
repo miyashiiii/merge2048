@@ -1,15 +1,16 @@
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 public static class Board
 {
     public const int StatusWaitingInput = 0;
-    public const int StatusInAnimation = 1;
-    public const int StatusFinish = 2;
+    public const int StatusInMovingAnimation = 1;
+    public const int StatusInCreateAnimation = 2;
+    public const int StatusFinish = 3;
 
     public static int Status = StatusWaitingInput;
 
@@ -18,7 +19,7 @@ public static class Board
     private static readonly GameObject Canvas = GameObject.Find("Canvas");
 
 
-    private static List<int> _board = new List<int>();
+    private static int[][] _board;
 
     private static GameObject _canvas;
     private static readonly Vector2[] PosArray = new Vector2[16];
@@ -44,12 +45,12 @@ public static class Board
         MakePosArray(parentPos, cellSize, spacing);
 
         // Debug.Log("Board Init");
-        _board = new List<int>
+        _board = new int[][]
         {
-            0, 0, 0, 0,
-            0, 0, 0, 0,
-            0, 0, 0, 0,
-            0, 0, 0, 0,
+            new int[]{0, 0, 0, 0},
+            new int[]{0, 0, 0, 0},
+            new int[]{0, 0, 0, 0},
+            new int[]{0, 0, 0, 0},
         };
 
         RandPut();
@@ -101,43 +102,50 @@ public static class Board
         Util.ListDebugLog("PosArray", PosArray);
     }
 
-    private static List<int> GetEmptyIndices()
+    private static List<int> GetEmptyIndices(int[][]board)
     {
-        return GetIndices(0);
+        return GetIndices(0,board);
     }
 
-    private static List<int> GetIndices(int p)
+    private static List<int> GetIndices(int p,int[][]board)
     {
-        var idx = _board.IndexOf(p);
-        // Debug.Log("board length: " + _board.Count);
-        // Debug.Log("board: " + _board);
-        // Debug.Log("p: " + p);
+    
         var result = new List<int>();
-        if (idx < 0) return result;
-
-        result.Add(idx);
-
-
-        // IndexOfメソッドで見つからなくなるまで繰り返す
-        while (idx > 0)
+        for (int i = 0; i < 4; i++)
         {
-            //見つかった位置の次の位置から検索
-            idx = _board.IndexOf(p, idx + 1);
-            if (idx > 0)
+            for (int j = 0; j < 4; j++)
             {
-                result.Add(idx);
+                if( board[i][j]==p)
+                {
+                    result.Add(i*4+j);
+                }       
             }
         }
-
         return result;
     }
 
 
+    // static void RandPut()
+    // {
+    //     // select panel
+    //     var p = Util.RandomWithWeight(_panelMap);
+    //     var emptyIndices = GetEmptyIndices();
+    //     if (emptyIndices.Count == 0)
+    //     {
+    //         // do nothing if cannot move
+    //         return;
+    //     }
+    //
+    //     var randIdx = emptyIndices[Random.Range(0, emptyIndices.Count)];
+    //     PUT(p, randIdx);
+    // }
     static void RandPut()
     {
+            
         // select panel
         var p = Util.RandomWithWeight(_panelMap);
-        var emptyIndices = GetEmptyIndices();
+        
+        var emptyIndices = GetEmptyIndices(_board);
         if (emptyIndices.Count == 0)
         {
             // do nothing if cannot move
@@ -156,7 +164,9 @@ public static class Board
         Debug.Log("Put");
         var instance = Object.Instantiate(p, PosArray[idx], Quaternion.identity);
         instance.transform.SetParent(_canvas.transform);
-        _board[idx] = panelNum;
+        int row = (int) Math.Floor((float) (idx / 4));
+        int col = idx % 4;
+        _board[row][col] = panelNum;
         _instances[idx] = instance;
     }
 
@@ -261,7 +271,7 @@ public static class Board
 
     static void UpdatePanels()
     {
-        // FlushInstances();
+        FlushInstances();
         int col = 0;
         int row = 0;
         for (var i = 0; i < 16; i++)
@@ -409,10 +419,10 @@ public static class Board
 
         var jagBoard = new[]
         {
-            _board.GetRange(0, 4).ToArray(),
-            _board.GetRange(4, 4).ToArray(),
-            _board.GetRange(8, 4).ToArray(),
-            _board.GetRange(12, 4).ToArray(),
+            _board[0],
+            _board[1],
+            _board[2],
+            _board[3],
         };
         bool isMove;
         (isMove, MergedBoard, moveBoardInAnimation, IsNewBoard) = CalcMoveByDirection(jagBoard, direction);
@@ -427,19 +437,19 @@ public static class Board
         StartMovingAnimation();
     }
 
-    private static void CheckFinish()
+    private static bool CheckFinish()
     {
         var jagBoard = new[]
         {
-            _board.GetRange(0, 4).ToArray(),
-            _board.GetRange(4, 4).ToArray(),
-            _board.GetRange(8, 4).ToArray(),
-            _board.GetRange(12, 4).ToArray(),
+            _board[0],
+            _board[1],
+            _board[2],
+            _board[3],
         };
-        if (GetEmptyIndices().Count > 1)
-        {
-            return;
-        }
+        // if (GetEmptyIndices().Count > 1)
+        // {
+            // return;
+        // }
 
         var (_, uBoard, _, _) = CalcMoveByDirection(jagBoard, "up");
         var (_, dBoard, _, _) = CalcMoveByDirection(jagBoard, "down");
@@ -456,13 +466,18 @@ public static class Board
         if (array.SequenceEqual(uArray) && array.SequenceEqual(dArray) &&
             array.SequenceEqual(lArray) && array.SequenceEqual(rArray))
         {
-            Finish();
+            return true;
         }
+
+        return false;
     }
 
     private static int MoveFrames = 5;
     private static int CountMoveFrames = 0;
 
+    private static int CreateFrames = 6;
+    private static int CountCreateFrames = 0;
+    
     private static int[][] moveBoardInAnimation;
     private static string directionInAnimation;
 
@@ -504,15 +519,12 @@ public static class Board
     public static void StartMovingAnimation()
     {
         MovingAnimation();
-        Status = StatusInAnimation;
+        Status = StatusInMovingAnimation;
         
     }
 
-    public static void StartCreatingAnimation()
-    {
-    }
 
-    public static void ContinueAnimation()
+    public static void ContinueMovingAnimation()
     {
         CountMoveFrames++;
         // Debug.Log("CountMoveFrames: " + CountMoveFrames);
@@ -526,14 +538,7 @@ public static class Board
         // 移動したinstanceを削除
         MovingAnimation(delete: true);
         CountMoveFrames = 0;
-        Status = StatusWaitingInput;
-
-        // MergedBoard に従って画面更新
-        UpdatePanels();
-        RandPut();
-
-        // IsNewBoardに従って新規作成アニメーション
-        StartCreatingAnimation();
+        // Status = StatusWaitingInput;
 
         // MergedBoard に従って画面更新
         UpdatePanels();
@@ -542,9 +547,66 @@ public static class Board
         // isNewBoardに従って新規作成アニメーション
         StartCreatingAnimation();
 
-        CheckFinish();
     }
 
+    static void CreatingAnimation()
+    {
+        for (var i = 0; i < IsNewBoard.Length; i++)
+        {
+            for (var j = 0; j < IsNewBoard[i].Length; j++)
+            {
+                var IsNewSquare = IsNewBoard[i][j];
+                if (IsNewSquare == 0)
+                {
+                    continue;
+                }
+
+                float scalePerFrame = 0.1f;
+                float scale = 1f;
+                if (CountCreateFrames <= CreateFrames / 2)
+                {
+                    scale += (CountCreateFrames+1)*scalePerFrame;
+                }
+                else
+                {
+                    
+                    scale += (CreateFrames-CountCreateFrames-1)*scalePerFrame;
+                }
+                Debug.Log(CountCreateFrames); 
+                    _instances[i * 4 + j].transform.localScale = new Vector3(scale,scale, 1);
+                    _instances[i * 4 + j].transform.rotation = Quaternion.Euler(0,0,0);
+
+            }
+        }
+
+        return;        
+    }
+ 
+    public static void StartCreatingAnimation()
+
+    {
+        Status = StatusInCreateAnimation;
+        CreatingAnimation();
+    }
+
+    public static void ContinueCreatingAnimation()
+    {
+        CountCreateFrames++;
+        // Debug.Log("CountMoveFrames: " + CountMoveFrames);
+        if (CountCreateFrames != CreateFrames)
+        {
+            CreatingAnimation();
+            return;
+        }
+
+        // finish animation
+        // 移動したinstanceを削除
+        CountCreateFrames = 0;
+        
+        var isFinish = CheckFinish();
+        Status = isFinish ? StatusFinish : StatusWaitingInput;
+        
+    }
     public static void Reset()
     {
     }
