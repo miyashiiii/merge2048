@@ -31,4 +31,10 @@ public static class Util
         var log = tag + ": " + string.Join(", ", l.Select(obj => obj.ToString()));
         Debug.Log(log);
     }
+    public static void JagListDebugLog<T>(string tag, T[][] l)
+    {
+        var log = tag + ": " + string.Join(",  \\ ", l.Select(obj => 
+            string.Join(", ",obj.Select(o=>o.ToString()))));
+        Debug.Log(log);
+    }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -6,7 +7,11 @@ using UnityEngine.UI;
 
 public class BoardManager : MonoBehaviour
 {
-    public GameObject debugTextBox; // Textオブジェクト
+    public GameObject debugTextBoxUp1; // Textオブジェクト
+    public GameObject debugTextBoxUp2; // Textオブジェクト
+    public GameObject debugTextBoxUp3; // Textオブジェクト
+    public GameObject debugTextBoxUp4; // Textオブジェクト
+    public GameObject debugTextBoxDown; // Textオブジェクト
 
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
@@ -23,18 +28,19 @@ public class BoardManager : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        Debug.Log("board status: "+Board.Status);
+        Debug.Log("board status: " + Board.Status);
         if (Board.Status == Board.StatusInMovingAnimation)
         {
             Board.ContinueMovingAnimation();
             return;
-        }  
+        }
+
         if (Board.Status == Board.StatusInCreateAnimation)
         {
             Board.ContinueCreatingAnimation();
             return;
         }
-        
+
         if (Board.Status == Board.StatusFinish)
         {
             CheckKeyDown();
@@ -54,6 +60,76 @@ public class BoardManager : MonoBehaviour
                 Input.mousePosition.z);
             GetDirection();
         }
+
+        //1: board
+        //2: move
+        //3: isNew
+        //4: instance
+        string boardStr = "";
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                try
+                {
+                    boardStr = boardStr + Board._board[i][j];
+                }
+                catch (NullReferenceException e)
+                {
+                
+                    Util.JagListDebugLog("####### ERROR ######## i: " + i + ", j: " + j + ", board", Board._board);
+                }
+            }
+
+            boardStr = boardStr + "\n";
+        }
+
+        debugTextBoxUp1.GetComponent<Text>().text = boardStr;
+
+        string moveBOardStr = "";
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                moveBOardStr = moveBOardStr + Board.moveBoard[i][j];
+            }
+
+            moveBOardStr = moveBOardStr + "\n";
+        }
+
+        debugTextBoxUp2.GetComponent<Text>().text = moveBOardStr;
+        // Board.Update("left"); 
+        string isNewBoardStr = "";
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                isNewBoardStr = isNewBoardStr + Board.IsNewBoard[i][j];
+            }
+
+            isNewBoardStr = isNewBoardStr + "\n";
+        }
+
+        debugTextBoxUp3.GetComponent<Text>().text = isNewBoardStr;
+        string instancesStr = "";
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                if (Board._instances[i][j] == null)
+                {
+                    instancesStr = instancesStr + 0;
+                }
+                else
+                {
+                    instancesStr = instancesStr + Board._instances[i][j].name[0];
+                }
+            }
+
+            instancesStr = instancesStr + "\n";
+        }
+
+        debugTextBoxUp4.GetComponent<Text>().text = instancesStr;
     }
 
     void CheckKeyDown()
@@ -95,8 +171,7 @@ public class BoardManager : MonoBehaviour
         }
 
         // Debug.Log(direction);
-        debugTextBox.GetComponent<Text>().text = direction;
+        debugTextBoxDown.GetComponent<Text>().text = direction;
         Board.Update(direction);
-        // Board.Update("left");
     }
 }
