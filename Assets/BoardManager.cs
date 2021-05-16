@@ -12,6 +12,7 @@ public class BoardManager : MonoBehaviour
     public GameObject debugTextBoxUp3; // Textオブジェクト
     public GameObject debugTextBoxUp4; // Textオブジェクト
     public GameObject debugTextBoxDown; // Textオブジェクト
+    public GameObject debugTextBoxDown2; // Textオブジェクト
 
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
@@ -63,7 +64,7 @@ public class BoardManager : MonoBehaviour
 
         //1: board
         //2: move
-        //3: isNew
+        //3: deleteAfterMove
         //4: instance
         string boardStr = "";
         for (int i = 0; i < 4; i++)
@@ -77,7 +78,7 @@ public class BoardManager : MonoBehaviour
                 catch (NullReferenceException e)
                 {
                 
-                    Util.JagListDebugLog("####### ERROR ######## i: " + i + ", j: " + j + ", board", Board._board);
+                    Util.JagListDebugLog("####### ERROR _board ######## i: " + i + ", j: " + j + ", board", Board._board);
                 }
             }
 
@@ -91,7 +92,14 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < 4; j++)
             {
+                try
+                {
                 moveBOardStr = moveBOardStr + Board.moveBoard[i][j];
+                }
+                catch (NullReferenceException e)
+                {
+                
+                } 
             }
 
             moveBOardStr = moveBOardStr + "\n";
@@ -99,23 +107,30 @@ public class BoardManager : MonoBehaviour
 
         debugTextBoxUp2.GetComponent<Text>().text = moveBOardStr;
         // Board.Update("left"); 
-        string isNewBoardStr = "";
+        string deleteAfterMoveStr = "";
         for (int i = 0; i < 4; i++)
         {
             for (int j = 0; j < 4; j++)
             {
-                isNewBoardStr = isNewBoardStr + Board.IsNewBoard[i][j];
-            }
+                try
+                {
+                    deleteAfterMoveStr = deleteAfterMoveStr + Board.deleteAfterMoveBoard[i][j];
+                }
+                catch (NullReferenceException e)
+                {
+                
+                }             }
 
-            isNewBoardStr = isNewBoardStr + "\n";
+            deleteAfterMoveStr = deleteAfterMoveStr + "\n";
         }
 
-        debugTextBoxUp3.GetComponent<Text>().text = isNewBoardStr;
+        debugTextBoxUp3.GetComponent<Text>().text = deleteAfterMoveStr;
         string instancesStr = "";
         for (int i = 0; i < 4; i++)
         {
             for (int j = 0; j < 4; j++)
             {
+
                 if (Board._instances[i][j] == null)
                 {
                     instancesStr = instancesStr + 0;
@@ -173,5 +188,6 @@ public class BoardManager : MonoBehaviour
         // Debug.Log(direction);
         debugTextBoxDown.GetComponent<Text>().text = direction;
         Board.Update(direction);
+        debugTextBoxDown2.GetComponent<Text>().text = Board.movesCount.ToString();
     }
 }

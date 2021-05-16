@@ -41,6 +41,7 @@ public static class Board
     private static string directionInAnimation;
 
     public static GameObject[][] _instances;
+    public static int movesCount;
 
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
@@ -89,8 +90,8 @@ public static class Board
         };
 
 
-        RandPut();
-        RandPut();
+        PUT(2, 0);
+        PUT(2, 1);
         StartCreatingAnimation();
     }
 
@@ -189,8 +190,8 @@ public static class Board
     static void RandPut()
     {
         // select panel
-        var p = Util.RandomWithWeight(_panelMap);
-
+        // var p = Util.RandomWithWeight(_panelMap);
+        var p = 2;
         var emptyIndices = GetEmptyIndices(_board);
         if (emptyIndices.Count == 0)
         {
@@ -198,7 +199,8 @@ public static class Board
             return;
         }
 
-        var randIdx = emptyIndices[Random.Range(0, emptyIndices.Count)];
+        // var randIdx = emptyIndices[Random.Range(0, emptyIndices.Count)];
+        var randIdx = emptyIndices[0]; //TODO
         PUT(p, randIdx);
     }
 
@@ -251,6 +253,7 @@ public static class Board
             var colCount = 0;
             var mergedColCount = 0;
 
+            var deleteIdxPool = 0;
             var before = 0; // マージ確認用 1つ前のempty以外のnumの値
             foreach (var num in row)
             {
@@ -266,6 +269,12 @@ public static class Board
                 {
                     before = num;
                     moveRow[colCount] = colCount - mergedColCount;
+                    if (mergedColCount < colCount)
+                    {
+                        isMove = true;
+                    }
+
+                    deleteIdxPool = colCount;
                     // mergedColCount++;
                     // mergedへのAddは保留
                 }
@@ -273,7 +282,11 @@ public static class Board
                 {
                     moveRow[colCount] = colCount - mergedColCount;
                     deleteAfterMoveRow[colCount] = 1;
-                    deleteAfterMoveRow[colCount - 1] = 1;
+                    deleteAfterMoveRow[deleteIdxPool] = 1;
+                    if (mergedColCount < colCount)
+                    {
+                        isMove = true;
+                    }
 
                     mergedRow[mergedColCount] = num * 2;
                     isNewRow[mergedColCount] = 1;
@@ -282,21 +295,29 @@ public static class Board
                 }
                 else // beforeと別パネル
                 {
-                    moveRow[colCount] = colCount - mergedColCount;
                     mergedRow[mergedColCount] = before;
                     mergedColCount++;
+
+                    moveRow[colCount] = colCount - mergedColCount;
+                    if (mergedColCount < colCount)
+                    {
+                        isMove = true;
+                    }
+
+                    // mergedColCount++;
                     // mergedへのAddは保留
                     before = num;
+                    deleteIdxPool = colCount;
                 }
 
-                if (mergedColCount == colCount)
-                {
-                    moveRow[colCount] = 0;
-                }
-                else
-                {
-                    isMove = true;
-                }
+                // if (mergedColCount == colCount)
+                // {
+                //     // moveRow[colCount] = 0;
+                // }
+                // else
+                // {
+                //     isMove = true;
+                // }
 
                 colCount++;
             }
@@ -497,6 +518,7 @@ public static class Board
         directionInAnimation = direction;
         // moveBoardに従って移動アニメーション
         StartMovingAnimation();
+        movesCount++;
     }
 
     private static bool CheckFinish()
@@ -542,6 +564,26 @@ public static class Board
             return;
         }
 
+        if (MoveFrames == CountMoveFrames)
+        {
+            for (var row = 0; row < 4; row++)
+            {
+                for (var col = 0; col < 4; col++)
+                {
+                    var moveSquare = moveBoard[row][col];
+                    
+                    
+                        //移動せずマージする場合はオブジェクト削除
+                    if (moveSquare == 0&& deleteAfterMoveBoard[row][col] == 1)
+                        {
+                            Object.Destroy(_instances[row][col]);
+                            // _instances[row][col] = null;
+                        }
+
+                }
+            }
+        }
+
         for (var row = 0; row < 4; row++)
         {
             for (var col = 0; col < 4; col++)
@@ -553,7 +595,9 @@ public static class Board
                 }
 
 
-                var distance = moveSquare * (CellSize.x + Spacing.x) / MoveFrames + 1;
+                var distance = moveSquare * (CellSize.x + Spacing.x) / (MoveFrames + 1);
+                Debug.Log("col: " + col + ", row: " + row + ", Move Frames: " + MoveFrames + ", countFrames: " +
+                          CountMoveFrames);
                 var nextRow = 0;
                 var nextCol = 0;
                 switch (directionInAnimation)
@@ -597,8 +641,22 @@ public static class Board
                         continue;
                     }
 
-                    _instances[nextRow][nextCol] = _instances[row][col];
-                    // Object.Destroy(_instances[row][col]);
+                    var clone = Object.Instantiate(_instances[row][col], PosArray[nextRow][nextCol],
+                        Quaternion.identity);
+                    Debug.Log("move row: " + row + ", col:" + col);
+                    Util.JagListDebugLog("move board", _board);
+                    Debug.Log("move value: " + _board[row][col]);
+                    clone.name = _board[nextRow][nextCol].ToString();
+
+                    // var clone = GameObject.Instantiate( _instances[row][col] ) ;
+                    clone.transform.SetParent(_canvas.transform);
+
+                    // clone.transform.parent = _instances[row][col].transform.parent;
+                    // clone.transform.localPosition = _instances[row][col].transform.localPosition;
+                    // clone.transform.localScale = _instances[row][col].transform.localScale;
+                    Object.Destroy(_instances[row][col]);
+                    _instances[nextRow][nextCol] = clone;
+
                     _instances[row][col] = null;
                 }
             }
@@ -673,7 +731,7 @@ public static class Board
                     }
 
                     var p = _pm.Panels[panelNum];
-                    Debug.Log("Put");
+                    // Debug.Log("Put");
                     var instance = Object.Instantiate(p, PosArray[row][col], Quaternion.identity);
                     instance.transform.SetParent(_canvas.transform);
                     _board[row][col] = panelNum;

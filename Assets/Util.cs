@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public static class Util
 {
@@ -33,8 +35,18 @@ public static class Util
     }
     public static void JagListDebugLog<T>(string tag, T[][] l)
     {
-        var log = tag + ": " + string.Join(",  \\ ", l.Select(obj => 
-            string.Join(", ",obj.Select(o=>o.ToString()))));
+        string log ;
+        try
+        {
+
+            log = tag + ": " + string.Join(",  \\ ", l.Select(obj =>
+                string.Join(", ", obj.Select(o => o.ToString()))));
+        }
+        catch (ArgumentException e)
+        {
+            log=null;
+        }
+            
         Debug.Log(log);
     }
 }
