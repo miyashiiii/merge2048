@@ -564,22 +564,32 @@ public static class Board
             return;
         }
 
+        int[][] tmpBoard = new int[4][];
+
         if (MoveFrames == CountMoveFrames)
         {
             for (var row = 0; row < 4; row++)
             {
+                tmpBoard[row] = new int[4];
                 for (var col = 0; col < 4; col++)
                 {
                     var moveSquare = moveBoard[row][col];
-                    
-                    
-                        //移動せずマージする場合はオブジェクト削除
-                    if (moveSquare == 0&& deleteAfterMoveBoard[row][col] == 1)
-                        {
-                            Object.Destroy(_instances[row][col]);
-                            // _instances[row][col] = null;
-                        }
+                    var instance  = _instances[row][col];
+                    if (instance == null)
+                    {
+                        tmpBoard[row][col] = 0;
+                    }
+                    else
+                    {
+                    tmpBoard[row][col] = int.Parse(_instances[row][col].name[0].ToString());
 
+                    }
+                    //移動せずマージする場合はオブジェクト削除
+                    if (moveSquare == 0 && deleteAfterMoveBoard[row][col] == 1)
+                    {
+                        Object.Destroy(_instances[row][col]);
+                        // _instances[row][col] = null;
+                    }
                 }
             }
         }
@@ -641,23 +651,65 @@ public static class Board
                         continue;
                     }
 
-                    var clone = Object.Instantiate(_instances[row][col], PosArray[nextRow][nextCol],
-                        Quaternion.identity);
+                }
+            }
+        }
+        if (MoveFrames == CountMoveFrames)
+        {
+            for (var row = 0; row < 4; row++)
+            {
+                for (var col = 0; col < 4; col++)
+                {
+                    var moveSquare = moveBoard[row][col];
+                    if (moveSquare == 0)
+                    {
+                        continue;
+                    } 
+                    var nextRow = 0;
+                    var nextCol = 0;
+                    switch (directionInAnimation)
+                    {
+                        case "left":
+                        {
+                            nextRow = row;
+                            nextCol = col - moveSquare;
+                            break;
+                        }
+                        case "right":
+                        {
+                            nextRow = row;
+                            nextCol = col + moveSquare;
+                            break;
+                        }
+                        case "up":
+                        {
+                            nextRow = row - moveSquare;
+                            nextCol = col;
+                            break;
+                        }
+                        case "down":
+                        {
+                            nextRow = row + moveSquare;
+                            nextCol = col;
+                            break;
+                        }
+                    }
+                    var num = tmpBoard[row][col];
+                    var p = _pm.Panels[num];
+
+                    var clone = Object.Instantiate(p, PosArray[nextRow][nextCol], Quaternion.identity);
                     Debug.Log("move row: " + row + ", col:" + col);
                     Util.JagListDebugLog("move board", _board);
                     Debug.Log("move value: " + _board[row][col]);
-                    clone.name = _board[nextRow][nextCol].ToString();
-
-                    // var clone = GameObject.Instantiate( _instances[row][col] ) ;
+                    clone.name = p.ToString();
+                    
                     clone.transform.SetParent(_canvas.transform);
 
-                    // clone.transform.parent = _instances[row][col].transform.parent;
-                    // clone.transform.localPosition = _instances[row][col].transform.localPosition;
-                    // clone.transform.localScale = _instances[row][col].transform.localScale;
                     Object.Destroy(_instances[row][col]);
                     _instances[nextRow][nextCol] = clone;
 
                     _instances[row][col] = null;
+
                 }
             }
         }
