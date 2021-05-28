@@ -14,8 +14,12 @@ public class BoardManager : MonoBehaviour
     public GameObject debugTextBoxDown; // Textオブジェクト
     public GameObject debugTextBoxDown2; // Textオブジェクト
 
+    public GameObject[] objects; // Textオブジェクト
+
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
+
+    private bool DEBUG = false;
 
     // Start is called before the first frame update
     private void Start()
@@ -23,6 +27,23 @@ public class BoardManager : MonoBehaviour
         var glGroup = gameObject.GetComponent<GridLayoutGroup>();
         var parentPos = gameObject.transform.position;
         Board.Init(parentPos, glGroup.cellSize, glGroup.spacing);
+        if (DEBUG)
+        {
+            foreach (var obj in objects)
+            {
+                obj.SetActive(false);
+            }
+        }
+        else
+        {
+    debugTextBoxUp1.SetActive(false); 
+    debugTextBoxUp2.SetActive(false); 
+    debugTextBoxUp3.SetActive(false); 
+    debugTextBoxUp4.SetActive(false); 
+    debugTextBoxDown.SetActive(false); 
+    debugTextBoxDown2.SetActive(false);
+            
+        }
     }
 
 
@@ -77,8 +98,8 @@ public class BoardManager : MonoBehaviour
                 }
                 catch (NullReferenceException e)
                 {
-                
-                    Util.JagListDebugLog("####### ERROR _board ######## i: " + i + ", j: " + j + ", board", Board._board);
+                    Util.JagListDebugLog("####### ERROR _board ######## i: " + i + ", j: " + j + ", board",
+                        Board._board);
                 }
             }
 
@@ -94,12 +115,11 @@ public class BoardManager : MonoBehaviour
             {
                 try
                 {
-                moveBOardStr = moveBOardStr + Board.moveBoard[i][j];
+                    moveBOardStr = moveBOardStr + Board.moveBoard[i][j];
                 }
                 catch (NullReferenceException e)
                 {
-                
-                } 
+                }
             }
 
             moveBOardStr = moveBOardStr + "\n";
@@ -118,8 +138,8 @@ public class BoardManager : MonoBehaviour
                 }
                 catch (NullReferenceException e)
                 {
-                
-                }             }
+                }
+            }
 
             deleteAfterMoveStr = deleteAfterMoveStr + "\n";
         }
@@ -130,7 +150,6 @@ public class BoardManager : MonoBehaviour
         {
             for (int j = 0; j < 4; j++)
             {
-
                 if (Board._instances[i][j] == null)
                 {
                     instancesStr = instancesStr + 0;
