@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEditor.Build.Pipeline;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -88,7 +89,7 @@ public class BoardManager : MonoBehaviour
                 {
                     boardStr += Board.CurrentBoard[i][j];
                 }
-                catch (NullReferenceException )
+                catch (NullReferenceException)
                 {
                     Util.JagListDebugLog("####### ERROR _board ######## i: " + i + ", j: " + j + ", board",
                         Board.CurrentBoard);
@@ -109,7 +110,7 @@ public class BoardManager : MonoBehaviour
                 {
                     moveBoardStr += Board.MoveBoard[i][j];
                 }
-                catch (NullReferenceException )
+                catch (NullReferenceException)
                 {
                 }
             }
@@ -128,7 +129,7 @@ public class BoardManager : MonoBehaviour
                 {
                     deleteAfterMoveStr += Board.DeleteAfterMoveBoard[i][j];
                 }
-                catch (NullReferenceException )
+                catch (NullReferenceException)
                 {
                 }
             }
@@ -167,37 +168,35 @@ public class BoardManager : MonoBehaviour
     {
         var directionX = _touchEndPos.x - _touchStartPos.x;
         var directionY = _touchEndPos.y - _touchStartPos.y;
-        var direction = "";
+        Direction direction = null;
 
         if (Mathf.Abs(directionY) < Mathf.Abs(directionX))
         {
             if (30 < directionX)
             {
-                direction = "right";
+                direction = Direction.right;
             }
             else if (-30 > directionX)
             {
-                direction = "left";
+                direction = Direction.left;
             }
         }
         else if (Mathf.Abs(directionX) < Mathf.Abs(directionY))
         {
             if (30 < directionY)
             {
-                direction = "up";
+                direction = Direction.up;
             }
             else if (-30 > directionY)
             {
-                direction = "down";
+                direction = Direction.down;
             }
         }
-        else
-        {
-            direction = "touch";
-        }
+
+        if (ReferenceEquals(null, direction)) return;
 
         // Debug.Log(direction);
-        debugTextBoxDown.GetComponent<Text>().text = direction;
+        debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
         Board.Update(direction);
         debugTextBoxDown2.GetComponent<Text>().text = Board.MovesCount.ToString();
     }

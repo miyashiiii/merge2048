@@ -24,14 +24,14 @@ public static class Board
     public static int[][] IsNewBoard;
 
     private const int MoveFrames = 5;
-    private static int _countMoveFrames ;
+    private static int _countMoveFrames;
 
     private const int CreateFrames = 6;
     private static int _countCreateFrames;
 
     public static int[][] MoveBoard;
     public static int[][] DeleteAfterMoveBoard;
-    private static string _directionInAnimation;
+    private static Direction _directionInAnimation;
 
     public static GameObject[][] Instances;
     public static int MovesCount;
@@ -285,61 +285,8 @@ public static class Board
         return (isMove, moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
     }
 
-    private static int[][] FlipBoard(int[][] board)
-    {
-        var flipped = new int[4][];
-        for (var i = 0; i < 4; i++)
-        {
-            flipped[i] = board[i].Reverse().ToArray();
-        }
 
-        return flipped;
-    }
-
-    private static int[][] RotateBoardClockwise(int[][] board)
-    {
-        return RotateBoard90(board, clockwise: true);
-    }
-
-    private static int[][] RotateBoardAnticlockwise(int[][] board)
-    {
-        return RotateBoard90(board, clockwise: false);
-    }
-
-    private static int[][] RotateBoard90(int[][] board, bool clockwise)
-    {
-        const int rows = 4;
-        const int cols = 4;
-        var rotated = new int[4][];
-        for (var j = 0; j < cols; j++)
-        {
-            rotated[j] = new int[4];
-        }
-
-        for (var i = 0; i < rows; i++)
-        {
-            for (var j = 0; j < cols; j++)
-            {
-                if (clockwise)
-                {
-                    rotated[j][rows - i - 1] = board[i][j];
-                }
-                else
-                {
-                    rotated[cols - j - 1][i] = board[i][j];
-                }
-            }
-        }
-
-        return rotated;
-    }
-
-    private static int[][] NoRotate(int[][] board)
-    {
-        return board;
-    }
-
-    private delegate int[][] ConvertBoard(int[][] board);
+    public delegate int[][] ConvertBoard(int[][] board);
 
     private static (bool, int[][], int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard,
         ConvertBoard convertFunc,
@@ -358,47 +305,21 @@ public static class Board
         return (isMove, moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
     }
 
-    private static (bool, int[][], int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, string direction)
+    private static (bool, int[][], int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, Direction direction)
     {
-        ConvertBoard convertFunc;
-        ConvertBoard reverseFunc;
-
-        switch (direction)
-        {
-            case "up":
-                convertFunc = RotateBoardAnticlockwise;
-                reverseFunc = RotateBoardClockwise;
-                break;
-            case "down":
-                convertFunc = RotateBoardClockwise;
-                reverseFunc = RotateBoardAnticlockwise;
-                break;
-            case "left":
-                convertFunc = NoRotate;
-                reverseFunc = NoRotate;
-                break;
-            case "right":
-                convertFunc = FlipBoard;
-                reverseFunc = FlipBoard;
-                break;
-            default:
-                // Debug.Log("invalid direction");
-                return (false, new int[][] { }, new int[][] { }, new int[][] { }, new int[][] { });
-        }
-
-        return CalcMoveWithConvert(jagBoard, convertFunc, reverseFunc);
+        return CalcMoveWithConvert(jagBoard, direction.ConvertFunc, direction.ReverseFunc);
     }
 
     // public static int[][] MergedBoard;
 
-    public static void Update(string direction)
+    public static void Update(Direction direction)
     {
-        IsNewBoard = new []
+        IsNewBoard = new[]
         {
-            new [] {0, 0, 0, 0},
-            new [] {0, 0, 0, 0},
-            new [] {0, 0, 0, 0},
-            new [] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
         };
         _directionInAnimation = direction;
 
@@ -437,10 +358,10 @@ public static class Board
         // return;
         // }
 
-        var (_, _, _, uBoard, _) = CalcMoveByDirection(jagBoard, "up");
-        var (_, _, _, dBoard, _) = CalcMoveByDirection(jagBoard, "down");
-        var (_, _, _, lBoard, _) = CalcMoveByDirection(jagBoard, "left");
-        var (_, _, _, rBoard, _) = CalcMoveByDirection(jagBoard, "right");
+        var (_, _, _, uBoard, _) = CalcMoveByDirection(jagBoard, Direction.up);
+        var (_, _, _, dBoard, _) = CalcMoveByDirection(jagBoard, Direction.down);
+        var (_, _, _, lBoard, _) = CalcMoveByDirection(jagBoard, Direction.left);
+        var (_, _, _, rBoard, _) = CalcMoveByDirection(jagBoard, Direction.right);
 
         //flatten
         var array = uBoard.SelectMany(x => x).ToArray();
@@ -503,29 +424,8 @@ public static class Board
                 var distance = moveSquare * (_cellSize.x + _spacing.x) / (MoveFrames + 1);
                 Debug.Log("col: " + col + ", row: " + row + ", Move Frames: " + MoveFrames + ", countFrames: " +
                           _countMoveFrames);
-                switch (_directionInAnimation)
-                {
-                    case "left":
-                    {
-                        Instances[row][col].transform.Translate(-distance, 0, 0);
-                        break;
-                    }
-                    case "right":
-                    {
-                        Instances[row][col].transform.Translate(distance, 0, 0);
-                        break;
-                    }
-                    case "up":
-                    {
-                        Instances[row][col].transform.Translate(0, distance, 0);
-                        break;
-                    }
-                    case "down":
-                    {
-                        Instances[row][col].transform.Translate(0, -distance, 0);
-                        break;
-                    }
-                }
+                var (distanceX, distanceY) = _directionInAnimation.Get2dDistance(distance);
+                Instances[row][col].transform.Translate(distanceX, distanceY, 0);
 
                 if (MoveFrames != _countMoveFrames || DeleteAfterMoveBoard[row][col] != 1) continue;
                 UnityEngine.Object.Destroy(Instances[row][col]);
@@ -545,35 +445,7 @@ public static class Board
                         continue;
                     }
 
-                    var nextRow = 0;
-                    var nextCol = 0;
-                    switch (_directionInAnimation)
-                    {
-                        case "left":
-                        {
-                            nextRow = row;
-                            nextCol = col - moveSquare;
-                            break;
-                        }
-                        case "right":
-                        {
-                            nextRow = row;
-                            nextCol = col + moveSquare;
-                            break;
-                        }
-                        case "up":
-                        {
-                            nextRow = row - moveSquare;
-                            nextCol = col;
-                            break;
-                        }
-                        case "down":
-                        {
-                            nextRow = row + moveSquare;
-                            nextCol = col;
-                            break;
-                        }
-                    }
+                    var (nextRow, nextCol) = _directionInAnimation.GETNext(moveSquare, row, col);
 
                     var num = tmpBoard[row][col];
                     var p = _panelManager.PanelMap[num];
@@ -593,7 +465,6 @@ public static class Board
                 }
             }
         }
-
     }
 
     private static void StartMovingAnimation()
@@ -673,7 +544,6 @@ public static class Board
                 Instances[row][col].transform.rotation = Quaternion.Euler(0, 0, 0);
             }
         }
-
     }
 
     private static void StartCreatingAnimation()

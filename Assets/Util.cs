@@ -49,4 +49,58 @@ public static class Util
             
         Debug.Log(log);
     }
+    public static int[][] FlipBoard(int[][] board)
+    {
+        var flipped = new int[4][];
+        for (var i = 0; i < 4; i++)
+        {
+            flipped[i] = board[i].Reverse().ToArray();
+        }
+
+        return flipped;
+    }
+
+    public static int[][] RotateBoardClockwise(int[][] board)
+    {
+        return RotateBoard90(board, clockwise: true);
+    }
+
+    public static int[][] RotateBoardAnticlockwise(int[][] board)
+    {
+        return RotateBoard90(board, clockwise: false);
+    }
+
+    public static int[][] RotateBoard90(int[][] board, bool clockwise)
+    {
+        const int rows = 4;
+        const int cols = 4;
+        var rotated = new int[4][];
+        for (var j = 0; j < cols; j++)
+        {
+            rotated[j] = new int[4];
+        }
+
+        for (var i = 0; i < rows; i++)
+        {
+            for (var j = 0; j < cols; j++)
+            {
+                if (clockwise)
+                {
+                    rotated[j][rows - i - 1] = board[i][j];
+                }
+                else
+                {
+                    rotated[cols - j - 1][i] = board[i][j];
+                }
+            }
+        }
+
+        return rotated;
+    }
+
+    public static int[][] NoRotate(int[][] board)
+    {
+        return board;
+    }
+ 
 }
