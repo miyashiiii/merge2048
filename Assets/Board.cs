@@ -339,10 +339,11 @@ public static class Board
         return board;
     }
 
+    private delegate int[][] ConvertBoard(int[][] board);
 
     private static (bool, int[][], int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard,
-        Func<int[][], int[][]> convertFunc,
-        Func<int[][], int[][]> reverseFunc)
+        ConvertBoard convertFunc,
+        ConvertBoard reverseFunc)
     {
         // int[][] tmpMergedBoard;
         // int[][] tmpMoveBoard;
@@ -359,8 +360,8 @@ public static class Board
 
     private static (bool, int[][], int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, string direction)
     {
-        Func<int[][], int[][]> convertFunc;
-        Func<int[][], int[][]> reverseFunc;
+        ConvertBoard convertFunc;
+        ConvertBoard reverseFunc;
 
         switch (direction)
         {
