@@ -61,6 +61,7 @@ public class BoardManager : MonoBehaviour
                 break;
         }
 
+        Direction direction = null;
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             _touchStartPos = new Vector3(Input.mousePosition.x,
@@ -73,8 +74,36 @@ public class BoardManager : MonoBehaviour
             _touchEndPos = new Vector3(Input.mousePosition.x,
                 Input.mousePosition.y,
                 Input.mousePosition.z);
-            GetDirection();
+            direction = GetFlickDirection();
         }
+
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            direction = Direction.up;
+        }
+
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            direction = Direction.down;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            direction = Direction.left;
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            direction = Direction.right;
+        }
+
+        if (ReferenceEquals(null, direction)) return;
+
+
+        // Debug.Log(direction);
+        debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
+        Board.Update(direction);
+        debugTextBoxDown2.GetComponent<Text>().text = Board.MovesCount.ToString();
 
         //1: board
         //2: move
@@ -163,6 +192,38 @@ public class BoardManager : MonoBehaviour
     {
     }
 
+    Direction GetFlickDirection()
+    {
+        var directionX = _touchEndPos.x - _touchStartPos.x;
+        var directionY = _touchEndPos.y - _touchStartPos.y;
+
+        if (Mathf.Abs(directionY) < Mathf.Abs(directionX))
+        {
+            if (30 < directionX)
+            {
+                return Direction.right;
+            }
+
+            if (-30 > directionX)
+            {
+                return Direction.left;
+            }
+        }
+        else if (Mathf.Abs(directionX) < Mathf.Abs(directionY))
+        {
+            if (30 < directionY)
+            {
+                return Direction.up;
+            }
+
+            if (-30 > directionY)
+            {
+                return Direction.down;
+            }
+        }
+
+        return null;
+    }
 
     void GetDirection()
     {
