@@ -2,8 +2,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 public static class Board
 {
@@ -14,38 +12,33 @@ public static class Board
 
     public static int Status = StatusWaitingInput;
 
-    private static GameObject _srcObj;
-
-    private static readonly GameObject Canvas = GameObject.Find("Canvas");
-
-
-    public static int[][] _board;
+    public static int[][] CurrentBoard;
 
     private static GameObject _canvas;
-    private static Vector2[][] PosArray;
+    private static Vector2[][] _posArray;
 
     private static Dictionary<int, float> _panelMap;
 
-    private static PanelManager _pm;
+    private static PanelManager _panelManager;
 
     public static int[][] IsNewBoard;
 
-    private static int MoveFrames = 5;
-    private static int CountMoveFrames = 0;
+    private const int MoveFrames = 5;
+    private static int _countMoveFrames ;
 
-    private static int CreateFrames = 6;
-    private static int CountCreateFrames = 0;
+    private const int CreateFrames = 6;
+    private static int _countCreateFrames;
 
-    public static int[][] moveBoard;
-    public static int[][] deleteAfterMoveBoard;
-    private static string directionInAnimation;
+    public static int[][] MoveBoard;
+    public static int[][] DeleteAfterMoveBoard;
+    private static string _directionInAnimation;
 
-    public static GameObject[][] _instances;
-    public static int movesCount;
+    public static GameObject[][] Instances;
+    public static int MovesCount;
 
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
-        _pm = new PanelManager();
+        _panelManager = new PanelManager();
 
         // panelMap= new Dictionary<PanelManager.Panel, float>
         _panelMap = new Dictionary<int, float>
@@ -60,28 +53,28 @@ public static class Board
         InitPosArray(parentPos, cellSize, spacing);
 
         // Debug.Log("Board Init");
-        _board = new int[][]
+        CurrentBoard = new[]
         {
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
         };
-        IsNewBoard = new int[][]
+        IsNewBoard = new[]
         {
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
         };
-        deleteAfterMoveBoard = new int[][]
+        DeleteAfterMoveBoard = new[]
         {
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
         };
-        _instances = new GameObject[][]
+        Instances = new[]
         {
             new GameObject[4],
             new GameObject[4],
@@ -90,13 +83,13 @@ public static class Board
         };
 
 
-        PUT(2, 0);
-        PUT(2, 1);
+        RandPut();
+        RandPut();
         StartCreatingAnimation();
     }
 
-    private static Vector2 CellSize;
-    private static Vector2 Spacing;
+    private static Vector2 _cellSize;
+    private static Vector2 _spacing;
 
     private static void InitPosArray(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
@@ -104,21 +97,18 @@ public static class Board
         // Debug.Log("cellSize:" + cellSize);
         // Debug.Log("spacing:" + spacing);
 
-        CellSize = cellSize;
-        Spacing = spacing;
-
-        // var colcount = 0;
-        // var rowcount = 0;
+        _cellSize = cellSize;
+        _spacing = spacing;
 
         var topLeftPos = new Vector2(
             parentPos.x - (cellSize.x + spacing.x) * 1.5f,
             parentPos.y - (cellSize.y + spacing.y) * 1.5f
         );
-        PosArray = new Vector2[4][];
+        _posArray = new Vector2[4][];
         for (int i = 0; i < 4; i++)
 
         {
-            PosArray[i] = new Vector2[4];
+            _posArray[i] = new Vector2[4];
         }
 
         for (int row = 0; row < 4; row++)
@@ -129,25 +119,12 @@ public static class Board
                     topLeftPos.x + (cellSize.x + spacing.x) * col,
                     topLeftPos.y + (cellSize.y + spacing.y) * row
                 );
-                // rowcount = 3 - rowcount; // todo
-                // var count = colcount + (rowcount * 4);
                 row = 3 - row;
-                PosArray[row][col] = vec;
-                // Debug.Log("vec: " + vec);
-
-                // if (colcount == 3)
-                // {
-                //     colcount = 0;
-                //     rowcount++;
-                // }
-                // else
-                // {
-                //     colcount++;
-                // }
+                _posArray[row][col] = vec;
             }
         }
 
-        Util.ListDebugLog("PosArray", PosArray);
+        Util.ListDebugLog("PosArray", _posArray);
     }
 
     private static List<int> GetEmptyIndices(int[][] board)
@@ -173,26 +150,12 @@ public static class Board
     }
 
 
-    // static void RandPut()
-    // {
-    //     // select panel
-    //     var p = Util.RandomWithWeight(_panelMap);
-    //     var emptyIndices = GetEmptyIndices();
-    //     if (emptyIndices.Count == 0)
-    //     {
-    //         // do nothing if cannot move
-    //         return;
-    //     }
-    //
-    //     var randIdx = emptyIndices[Random.Range(0, emptyIndices.Count)];
-    //     PUT(p, randIdx);
-    // }
     static void RandPut()
     {
         // select panel
         // var p = Util.RandomWithWeight(_panelMap);
-        var p = 2;
-        var emptyIndices = GetEmptyIndices(_board);
+        var p = 2; // TODO DEBUG
+        var emptyIndices = GetEmptyIndices(CurrentBoard);
         if (emptyIndices.Count == 0)
         {
             // do nothing if cannot move
@@ -200,15 +163,15 @@ public static class Board
         }
 
         // var randIdx = emptyIndices[Random.Range(0, emptyIndices.Count)];
-        var randIdx = emptyIndices[0]; //TODO
+        var randIdx = emptyIndices[0]; //TODO DEBUG
         PUT(p, randIdx);
     }
 
 
-    static (int, int) NumToIndex(int n)
+    private static (int, int) NumToIndex(int n)
     {
-        int row = (int) Math.Floor((float) (n / 4));
-        int col = n % 4;
+        var row = n / 4;
+        var col = n % 4;
         return (row, col);
     }
 
@@ -217,14 +180,8 @@ public static class Board
     {
         var (row, col) = NumToIndex(idx);
         Debug.Log("[PUT] idx: " + idx + ", row" + row + ", col" + col);
-        _board[row][col] = panelNum;
+        CurrentBoard[row][col] = panelNum;
         IsNewBoard[row][col] = 1;
-
-        // var p = _pm.Panels[panelNum];
-        // Debug.Log("Put");
-        // var instance = Object.Instantiate(p, PosArray[row][col], Quaternion.identity);
-        // instance.transform.SetParent(_canvas.transform);
-        // _instances[idx] = instance;
     }
 
     private static void Finish()
@@ -310,22 +267,9 @@ public static class Board
                     deleteIdxPool = colCount;
                 }
 
-                // if (mergedColCount == colCount)
-                // {
-                //     // moveRow[colCount] = 0;
-                // }
-                // else
-                // {
-                //     isMove = true;
-                // }
 
                 colCount++;
             }
-
-            // Util.ListDebugLog(rowCount + "row", row); //todo
-            // Util.ListDebugLog(rowCount + "idxAfterMove", moveRow); //todo
-            // Util.ListDebugLog(rowCount + "merged", mergedRow); //todo
-            // Util.ListDebugLog(rowCount + "isNew", isNewRow); //todo
 
 
             mergedRow[mergedColCount] = before;
@@ -341,92 +285,53 @@ public static class Board
         return (isMove, moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
     }
 
-    private static void FlushInstances()
+    private static int[][] FlipBoard(int[][] board)
     {
+        var flipped = new int[4][];
         for (var i = 0; i < 4; i++)
         {
-            for (int j = 0; j < 4; j++)
-            {
-                if (_instances[i][j] == null) continue;
-                Object.Destroy(_instances[i][j]);
-                _instances[i][j] = null;
-            }
-        }
-    }
-
-    static void UpdatePanels()
-    {
-        FlushInstances();
-        int col = 0;
-        int row = 0;
-        for (var i = 0; i < 16; i++)
-        {
-            // Debug.Log("row: " + row);
-            // Debug.Log("col: " + col);
-            PUT(_board[row][col], i);
-            if (col == 3)
-            {
-                col = 0;
-                row++;
-            }
-            else
-            {
-                col++;
-            }
-        }
-    }
-
-    static int[][] FlipBoard(int[][] board)
-    {
-        var reverseBoard = new int[4][];
-        for (var i = 0; i < 4; i++)
-        {
-            reverseBoard[i] = board[i].Reverse().ToArray();
+            flipped[i] = board[i].Reverse().ToArray();
         }
 
-        return reverseBoard;
+        return flipped;
     }
 
     private static int[][] RotateBoardClockwise(int[][] board)
     {
-        const int rows = 4;
-        const int cols = 4;
-        var t = new int[4][];
-        for (var j = 0; j < cols; j++)
-        {
-            t[j] = new int[4];
-        }
-
-        for (var i = 0; i < rows; i++)
-        {
-            for (var j = 0; j < cols; j++)
-            {
-                t[j][rows - i - 1] = board[i][j];
-            }
-        }
-
-        return t;
+        return RotateBoard90(board, clockwise: true);
     }
 
     private static int[][] RotateBoardAnticlockwise(int[][] board)
     {
+        return RotateBoard90(board, clockwise: false);
+    }
+
+    private static int[][] RotateBoard90(int[][] board, bool clockwise)
+    {
         const int rows = 4;
         const int cols = 4;
-        var t = new int[4][];
+        var rotated = new int[4][];
         for (var j = 0; j < cols; j++)
         {
-            t[j] = new int[4];
+            rotated[j] = new int[4];
         }
 
         for (var i = 0; i < rows; i++)
         {
             for (var j = 0; j < cols; j++)
             {
-                t[cols - j - 1][i] = board[i][j];
+                if (clockwise)
+                {
+                    rotated[j][rows - i - 1] = board[i][j];
+                }
+                else
+                {
+                    rotated[cols - j - 1][i] = board[i][j];
+                }
             }
         }
 
-        return t;
+        return rotated;
     }
 
     private static int[][] NoRotate(int[][] board)
@@ -435,25 +340,20 @@ public static class Board
     }
 
 
-    static (bool, int[][], int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard,
+    private static (bool, int[][], int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard,
         Func<int[][], int[][]> convertFunc,
         Func<int[][], int[][]> reverseFunc)
     {
-        int[][] moveBoard;
-        int[][] deleteAfterMoveBoard;
-        int[][] mergedBoard;
-        int[][] isNewBoard;
-
         // int[][] tmpMergedBoard;
         // int[][] tmpMoveBoard;
         // int[][] tmpIsNewBoard;
-        var rotate270Board = convertFunc(jagBoard);
-        var (isMove, tmpMoveBoard, tmpDeleteAfterMoveBoarD, tmpMergedBoard, tmpIsNewBoard) = CalcMove(rotate270Board);
+        var convertedBoard = convertFunc(jagBoard);
+        var (isMove, tmpMoveBoard, tmpDeleteAfterMoveBoarD, tmpMergedBoard, tmpIsNewBoard) = CalcMove(convertedBoard);
 
-        mergedBoard = reverseFunc(tmpMergedBoard);
-        moveBoard = reverseFunc(tmpMoveBoard);
-        deleteAfterMoveBoard = reverseFunc(tmpDeleteAfterMoveBoarD);
-        isNewBoard = reverseFunc(tmpIsNewBoard);
+        var mergedBoard = reverseFunc(tmpMergedBoard);
+        var moveBoard = reverseFunc(tmpMoveBoard);
+        var deleteAfterMoveBoard = reverseFunc(tmpDeleteAfterMoveBoarD);
+        var isNewBoard = reverseFunc(tmpIsNewBoard);
         return (isMove, moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
     }
 
@@ -492,43 +392,44 @@ public static class Board
 
     public static void Update(string direction)
     {
-        IsNewBoard = new int[][]
+        IsNewBoard = new []
         {
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
-            new int[] {0, 0, 0, 0},
+            new [] {0, 0, 0, 0},
+            new [] {0, 0, 0, 0},
+            new [] {0, 0, 0, 0},
+            new [] {0, 0, 0, 0},
         };
-        directionInAnimation = direction;
+        _directionInAnimation = direction;
 
         if (Status == StatusFinish)
         {
             return;
         }
 
-        Util.ListDebugLog("board: ", _board);
+        Util.ListDebugLog("board: ", CurrentBoard);
 
         bool isMove;
-        (isMove, moveBoard, deleteAfterMoveBoard, _board, IsNewBoard) = CalcMoveByDirection(_board, direction);
+        (isMove, MoveBoard, DeleteAfterMoveBoard, CurrentBoard, IsNewBoard) =
+            CalcMoveByDirection(CurrentBoard, direction);
         if (!isMove)
         {
             return;
         }
 
-        directionInAnimation = direction;
+        _directionInAnimation = direction;
         // moveBoardに従って移動アニメーション
         StartMovingAnimation();
-        movesCount++;
+        MovesCount++;
     }
 
     private static bool CheckFinish()
     {
         var jagBoard = new[]
         {
-            _board[0],
-            _board[1],
-            _board[2],
-            _board[3],
+            CurrentBoard[0],
+            CurrentBoard[1],
+            CurrentBoard[2],
+            CurrentBoard[3],
         };
         // if (GetEmptyIndices().Count > 1)
         // {
@@ -557,7 +458,7 @@ public static class Board
     }
 
 
-    static void MovingAnimation(bool delete = false)
+    private static void MovingAnimation(bool delete = false)
     {
         if (delete)
         {
@@ -566,28 +467,21 @@ public static class Board
 
         int[][] tmpBoard = new int[4][];
 
-        if (MoveFrames == CountMoveFrames)
+        if (MoveFrames == _countMoveFrames)
         {
             for (var row = 0; row < 4; row++)
             {
                 tmpBoard[row] = new int[4];
                 for (var col = 0; col < 4; col++)
                 {
-                    var moveSquare = moveBoard[row][col];
-                    var instance  = _instances[row][col];
-                    if (instance == null)
-                    {
-                        tmpBoard[row][col] = 0;
-                    }
-                    else
-                    {
-                    tmpBoard[row][col] = int.Parse(_instances[row][col].name[0].ToString());
+                    var moveSquare = MoveBoard[row][col];
+                    var instance = Instances[row][col];
+                    tmpBoard[row][col] = ReferenceEquals(instance, null) ? 0 : int.Parse(instance.name[0].ToString());
 
-                    }
                     //移動せずマージする場合はオブジェクト削除
-                    if (moveSquare == 0 && deleteAfterMoveBoard[row][col] == 1)
+                    if (moveSquare == 0 && DeleteAfterMoveBoard[row][col] == 1)
                     {
-                        Object.Destroy(_instances[row][col]);
+                        UnityEngine.Object.Destroy(Instances[row][col]);
                         // _instances[row][col] = null;
                     }
                 }
@@ -598,76 +492,61 @@ public static class Board
         {
             for (var col = 0; col < 4; col++)
             {
-                var moveSquare = moveBoard[row][col];
+                var moveSquare = MoveBoard[row][col];
                 if (moveSquare == 0)
                 {
                     continue;
                 }
 
 
-                var distance = moveSquare * (CellSize.x + Spacing.x) / (MoveFrames + 1);
+                var distance = moveSquare * (_cellSize.x + _spacing.x) / (MoveFrames + 1);
                 Debug.Log("col: " + col + ", row: " + row + ", Move Frames: " + MoveFrames + ", countFrames: " +
-                          CountMoveFrames);
-                var nextRow = 0;
-                var nextCol = 0;
-                switch (directionInAnimation)
+                          _countMoveFrames);
+                switch (_directionInAnimation)
                 {
                     case "left":
                     {
-                        _instances[row][col].transform.Translate(-distance, 0, 0);
-                        nextRow = row;
-                        nextCol = col - moveSquare;
+                        Instances[row][col].transform.Translate(-distance, 0, 0);
                         break;
                     }
                     case "right":
                     {
-                        _instances[row][col].transform.Translate(distance, 0, 0);
-                        nextRow = row;
-                        nextCol = col + moveSquare;
+                        Instances[row][col].transform.Translate(distance, 0, 0);
                         break;
                     }
                     case "up":
                     {
-                        _instances[row][col].transform.Translate(0, distance, 0);
-                        nextRow = row - moveSquare;
-                        nextCol = col;
+                        Instances[row][col].transform.Translate(0, distance, 0);
                         break;
                     }
                     case "down":
                     {
-                        _instances[row][col].transform.Translate(0, -distance, 0);
-                        nextRow = row + moveSquare;
-                        nextCol = col;
+                        Instances[row][col].transform.Translate(0, -distance, 0);
                         break;
                     }
                 }
 
-                if (MoveFrames == CountMoveFrames)
-                {
-                    if (deleteAfterMoveBoard[row][col] == 1)
-                    {
-                        Object.Destroy(_instances[row][col]);
-                        _instances[row][col] = null;
-                        continue;
-                    }
-
-                }
+                if (MoveFrames != _countMoveFrames || DeleteAfterMoveBoard[row][col] != 1) continue;
+                UnityEngine.Object.Destroy(Instances[row][col]);
+                Instances[row][col] = null;
             }
         }
-        if (MoveFrames == CountMoveFrames)
+
+        if (MoveFrames == _countMoveFrames)
         {
             for (var row = 0; row < 4; row++)
             {
                 for (var col = 0; col < 4; col++)
                 {
-                    var moveSquare = moveBoard[row][col];
+                    var moveSquare = MoveBoard[row][col];
                     if (moveSquare == 0)
                     {
                         continue;
-                    } 
+                    }
+
                     var nextRow = 0;
                     var nextCol = 0;
-                    switch (directionInAnimation)
+                    switch (_directionInAnimation)
                     {
                         case "left":
                         {
@@ -694,30 +573,29 @@ public static class Board
                             break;
                         }
                     }
-                    var num = tmpBoard[row][col];
-                    var p = _pm.Panels[num];
 
-                    var clone = Object.Instantiate(p, PosArray[nextRow][nextCol], Quaternion.identity);
+                    var num = tmpBoard[row][col];
+                    var p = _panelManager.PanelMap[num];
+
+                    var clone = UnityEngine.Object.Instantiate(p, _posArray[nextRow][nextCol], Quaternion.identity);
                     Debug.Log("move row: " + row + ", col:" + col);
-                    Util.JagListDebugLog("move board", _board);
-                    Debug.Log("move value: " + _board[row][col]);
+                    Util.JagListDebugLog("move board", CurrentBoard);
+                    Debug.Log("move value: " + CurrentBoard[row][col]);
                     clone.name = p.ToString();
-                    
+
                     clone.transform.SetParent(_canvas.transform);
 
-                    Object.Destroy(_instances[row][col]);
-                    _instances[nextRow][nextCol] = clone;
+                    UnityEngine.Object.Destroy(Instances[row][col]);
+                    Instances[nextRow][nextCol] = clone;
 
-                    _instances[row][col] = null;
-
+                    Instances[row][col] = null;
                 }
             }
         }
 
-        return;
     }
 
-    public static void StartMovingAnimation()
+    private static void StartMovingAnimation()
     {
         MovingAnimation();
         Status = StatusInMovingAnimation;
@@ -726,22 +604,20 @@ public static class Board
 
     public static void ContinueMovingAnimation()
     {
-        CountMoveFrames++;
-        // Debug.Log("CountMoveFrames: " + CountMoveFrames);
+        _countMoveFrames++;
 
         // finish animation
         // 移動したinstanceを削除
         MovingAnimation();
-        if (CountMoveFrames != MoveFrames)
+        if (_countMoveFrames != MoveFrames)
         {
             return;
         }
 
-        CountMoveFrames = 0;
+        _countMoveFrames = 0;
         // Status = StatusWaitingInput;
 
         // MergedBoard に従って画面更新
-        // UpdatePanels();
         RandPut();
 
         // isNewBoardに従って新規作成アニメーション
@@ -755,52 +631,51 @@ public static class Board
         {
             for (var col = 0; col < 4; col++)
             {
-                var IsNewSquare = IsNewBoard[row][col];
-                if (IsNewSquare == 0)
+                var isNewSquare = IsNewBoard[row][col];
+                if (isNewSquare == 0)
                 {
                     continue;
                 }
 
-                Debug.Log("row:" + row + ", col:" + col + ", isNewSquare:" + IsNewSquare);
-                float scalePerFrame = 0.1f;
-                float scale = 1f;
-                if (CountCreateFrames <= CreateFrames / 2)
+                Debug.Log("row:" + row + ", col:" + col + ", isNewSquare:" + isNewSquare);
+                const float scalePerFrame = 0.1f;
+                var scale = 1f;
+                if (_countCreateFrames <= CreateFrames / 2)
                 {
-                    scale += (CountCreateFrames + 1) * scalePerFrame;
+                    scale += (_countCreateFrames + 1) * scalePerFrame;
                 }
                 else
                 {
-                    scale += (CreateFrames - CountCreateFrames - 1) * scalePerFrame;
+                    scale += (CreateFrames - _countCreateFrames - 1) * scalePerFrame;
                 }
 
                 // var (row, col) = NumToIndex(idx);
-                if (CountCreateFrames == 0)
+                if (_countCreateFrames == 0)
                 {
-                    var panelNum = _board[row][col];
+                    var panelNum = CurrentBoard[row][col];
                     if (panelNum == 0)
                     {
                         Debug.Log("---- ERROR empty panel put ----");
                     }
 
-                    var p = _pm.Panels[panelNum];
+                    var p = _panelManager.PanelMap[panelNum];
                     // Debug.Log("Put");
-                    var instance = Object.Instantiate(p, PosArray[row][col], Quaternion.identity);
+                    var instance = UnityEngine.Object.Instantiate(p, _posArray[row][col], Quaternion.identity);
                     instance.transform.SetParent(_canvas.transform);
-                    _board[row][col] = panelNum;
+                    CurrentBoard[row][col] = panelNum;
                     IsNewBoard[row][col] = 1;
-                    _instances[row][col] = instance;
+                    Instances[row][col] = instance;
                 }
 
-                Debug.Log(CountCreateFrames);
-                _instances[row][col].transform.localScale = new Vector3(scale, scale, 1);
-                _instances[row][col].transform.rotation = Quaternion.Euler(0, 0, 0);
+                Debug.Log(_countCreateFrames);
+                Instances[row][col].transform.localScale = new Vector3(scale, scale, 1);
+                Instances[row][col].transform.rotation = Quaternion.Euler(0, 0, 0);
             }
         }
 
-        return;
     }
 
-    public static void StartCreatingAnimation()
+    private static void StartCreatingAnimation()
 
     {
         Status = StatusInCreateAnimation;
@@ -809,16 +684,16 @@ public static class Board
 
     public static void ContinueCreatingAnimation()
     {
-        CountCreateFrames++;
+        _countCreateFrames++;
         // Debug.Log("CountMoveFrames: " + CountMoveFrames);
-        if (CountCreateFrames != CreateFrames)
+        if (_countCreateFrames != CreateFrames)
         {
             CreatingAnimation();
             return;
         }
 
         // finish animation
-        CountCreateFrames = 0;
+        _countCreateFrames = 0;
 
         var isFinish = CheckFinish();
         Status = isFinish ? StatusFinish : StatusWaitingInput;

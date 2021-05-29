@@ -2269,6 +2269,7 @@ MonoBehaviour:
   debugTextBoxUp4: {fileID: 1316524564}
   debugTextBoxDown: {fileID: 1017748146}
   debugTextBoxDown2: {fileID: 444818449}
+  debug: 1
   objects:
   - {fileID: 170219305}
   - {fileID: 1392399452}

@@ -3,11 +3,11 @@ using UnityEngine;
 
 internal class PanelManager
 {
-    public readonly Dictionary<int, GameObject> Panels;
+    public readonly Dictionary<int, GameObject> PanelMap;
 
     public PanelManager()
     {
-        Panels = new Dictionary<int, GameObject>()
+        PanelMap = new Dictionary<int, GameObject>()
         {
             {0, GetPanel()},
             {2, GetPanel(2)},
