@@ -401,15 +401,18 @@ public static class Board
     private static void MovingAnimation()
     {
         int[][] tmpBoard = new int[4][];
+        GameObject[][] tmpInstances = new GameObject[4][];
         // マージ済みインスタンスは削除
         if (MoveFrames == _countMoveFrames)
         {
             for (var row = 0; row < 4; row++)
             {
                 tmpBoard[row] = new int[4];
+                tmpInstances[row] = new GameObject[4];
                 for (var col = 0; col < 4; col++)
                 {
                     tmpBoard[row][col] = 0;
+                    tmpInstances[row][col] = null;
                     var moveNum = MoveNumBoard[row][col];
                     var instance = Instances[row][col];
                     // tmpBoard[row][col] = ReferenceEquals(instance, null) ? 0 : int.Parse(instance.name[0].ToString());
@@ -456,7 +459,7 @@ public static class Board
         if (MoveFrames == _countMoveFrames)
         {
             // int[][] putCheckBoard = new int[4][];
-
+            
             for (var row = 0; row < 4; row++)
             {
                 // tmpBoard[row] = new int[4];
@@ -464,14 +467,14 @@ public static class Board
                 for (var col = 0; col < 4; col++)
                 {
                     var moveSquare = MoveNumBoard[row][col];
-                    if (moveSquare == 0)
-                    {
-                        continue;
-                    }
+                    // if (moveSquare == 0)
+                    // {
+                    //     continue;
+                    // }
 
                     var (nextRow, nextCol) = _directionInAnimation.GETNext(moveSquare, row, col);
 
-                    var num = tmpBoard[row][col];
+                    // var num = tmpBoard[row][col];
                     // var p = _panelManager.PanelMap[num];
 
                     // var clone = UnityEngine.Object.Instantiate(p, _posArray[nextRow][nextCol], Quaternion.identity);
@@ -486,15 +489,18 @@ public static class Board
                     // Instances[nextRow][nextCol] = clone;
                     //
                     // Instances[row][col] = null;
-                    Instances[nextRow][nextCol] = Instances[row][col];
-                    tmpBoard[nextRow][nextCol] = 1;
-                    // 移動済みパネルを削除しないようチェック
-                    if (tmpBoard[row][col] == 0)
-                    {
-                        Instances[row][col] = null;
-                    }
+                    if (Instances[row][col] == null) continue;
+                    tmpInstances[nextRow][nextCol] = Instances[row][col];
+                    // tmpBoard[nextRow][nextCol] = 1;
+                    // // 移動済みパネルを削除しないようチェック
+                    // if (tmpBoard[row][col] == 0)
+                    // {
+                    //     Instances[row][col] = null;
+                    // }
                 }
             }
+
+            Instances = tmpInstances;
         }
     }
 
