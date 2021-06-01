@@ -35,6 +35,7 @@ public static class Board
 
     public static GameObject[][] Instances;
     public static int MovesCount;
+    public static int Score;
 
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
@@ -85,6 +86,7 @@ public static class Board
 
         RandPut();
         RandPut();
+        Score = 0;
         StartCreatingAnimation();
     }
 
@@ -312,7 +314,7 @@ public static class Board
 
     // public static int[][] MergedBoard;
 
-    public static void Update(Direction direction)
+    public static void Move(Direction direction)
     {
         IsNewBoard = new[]
         {
@@ -537,6 +539,7 @@ public static class Board
                     CurrentBoard[row][col] = panelNum;
                     IsNewBoard[row][col] = 1;
                     Instances[row][col] = instance;
+                    Score += panelNum;
                 }
 
                 Debug.Log(_countCreateFrames);

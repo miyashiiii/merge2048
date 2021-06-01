@@ -1,19 +1,30 @@
 ﻿using System;
-using UnityEditor.Build.Pipeline;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BoardManager : MonoBehaviour
 {
-    public GameObject debugTextBoxUp1; // Textオブジェクト
-    public GameObject debugTextBoxUp2; // Textオブジェクト
-    public GameObject debugTextBoxUp3; // Textオブジェクト
-    public GameObject debugTextBoxUp4; // Textオブジェクト
-    public GameObject debugTextBoxDown; // Textオブジェクト
-    public GameObject debugTextBoxDown2; // Textオブジェクト
+    public GameObject debugTextBoxUp1;
+    public GameObject debugTextBoxUp2;
+    public GameObject debugTextBoxUp3;
+    public GameObject debugTextBoxUp4;
+    public GameObject debugTextBoxDown;
+    public GameObject debugTextBoxDown2;
+
+    public GameObject scoreArea;
+    public GameObject scoreText;
+    public GameObject highScoreArea;
+    public GameObject highScoreText;
+    public GameObject movesArea;
+    public GameObject movesText;
+    public GameObject timeArea;
+    public GameObject timeText;
+    public GameObject undoButton;
+    public GameObject redoButton;
+    public GameObject resetButton;
+
     public bool debug;
 
-    public GameObject[] objects; // Textオブジェクト
 
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
@@ -27,10 +38,13 @@ public class BoardManager : MonoBehaviour
         Board.Init(parentPos, glGroup.cellSize, glGroup.spacing);
         if (debug)
         {
-            foreach (var obj in objects)
-            {
-                obj.SetActive(false);
-            }
+            scoreArea.SetActive(false);
+            highScoreArea.SetActive(false);
+            movesArea.SetActive(false);
+            timeArea.SetActive(false);
+            undoButton.SetActive(false);
+            redoButton.SetActive(false);
+            resetButton.SetActive(false);
         }
         else
         {
@@ -41,6 +55,10 @@ public class BoardManager : MonoBehaviour
             debugTextBoxDown.SetActive(false);
             debugTextBoxDown2.SetActive(false);
         }
+        var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
+ 
+        highScoreText.GetComponent<Text>().text = highScore.ToString();
+ 
     }
 
 
@@ -48,6 +66,11 @@ public class BoardManager : MonoBehaviour
     private void Update()
     {
         UnityEngine.Debug.Log("board status: " + Board.Status);
+        
+        var mm= (Time.time/60).ToString("00");
+        var ss= (Time.time%60).ToString("00");
+        timeText.GetComponent<Text>().text = mm+":"+ss;
+ 
         switch (Board.Status)
         {
             case Board.StatusInMovingAnimation:
@@ -102,7 +125,7 @@ public class BoardManager : MonoBehaviour
 
         // Debug.Log(direction);
         debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
-        Board.Update(direction);
+        Board.Move(direction);
         debugTextBoxDown2.GetComponent<Text>().text = Board.MovesCount.ToString();
 
         //1: board
@@ -186,6 +209,20 @@ public class BoardManager : MonoBehaviour
         }
 
         debugTextBoxUp4.GetComponent<Text>().text = instancesStr;
+        
+        movesText.GetComponent<Text>().text = Board.MovesCount.ToString();
+
+        scoreText.GetComponent<Text>().text = Board.Score.ToString();
+        var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
+        if (highScore < Board.Score)
+        {
+            PlayerPrefs.SetInt("HIGH_SCORE", Board.Score);
+            PlayerPrefs.Save();
+
+            highScoreText.GetComponent<Text>().text = Board.Score.ToString();
+        }
+
+
     }
 
     void CheckKeyDown()
@@ -258,7 +295,8 @@ public class BoardManager : MonoBehaviour
 
         // Debug.Log(direction);
         debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
-        Board.Update(direction);
+        Board.Move(direction);
         debugTextBoxDown2.GetComponent<Text>().text = Board.MovesCount.ToString();
+
     }
 }
