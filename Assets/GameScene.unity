@@ -2749,8 +2749,8 @@ MonoBehaviour:
   timeText: {fileID: 1542742019}
   undoButton: {fileID: 979333210}
   redoButton: {fileID: 555513664}
-  resetButton: {fileID: 0}
-  debug: 0
+  resetButton: {fileID: 372039450}
+  debug: 1
 --- !u!1001 &1166298783
 PrefabInstance:
   m_ObjectHideFlags: 0

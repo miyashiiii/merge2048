@@ -120,13 +120,8 @@ public class BoardManager : MonoBehaviour
             direction = Direction.right;
         }
 
-        if (ReferenceEquals(null, direction)) return;
-
-
-        // Debug.Log(direction);
-        debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
-        Board.Move(direction);
         debugTextBoxDown2.GetComponent<Text>().text = Board.MovesCount.ToString();
+
 
         //1: board
         //2: move
@@ -221,7 +216,11 @@ public class BoardManager : MonoBehaviour
 
             highScoreText.GetComponent<Text>().text = Board.Score.ToString();
         }
+        if (ReferenceEquals(null, direction)) return;
 
+        // Debug.Log(direction);
+        debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
+        Board.Move(direction);
 
     }
 
