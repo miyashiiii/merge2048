@@ -111,6 +111,7 @@ public static class Board
             }
         }
 
+        MovesCount = 0;
         InitBoard();
     }
 

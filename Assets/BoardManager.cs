@@ -44,7 +44,7 @@ public class BoardManager : MonoBehaviour
             timeArea.SetActive(false);
             undoButton.SetActive(false);
             redoButton.SetActive(false);
-            resetButton.SetActive(false);
+            // resetButton.SetActive(false);
         }
         else
         {
