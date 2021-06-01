@@ -160,7 +160,7 @@ public class BoardManager : MonoBehaviour
             {
                 try
                 {
-                    moveBoardStr += Board.MoveBoard[i][j];
+                    moveBoardStr += Board.MoveNumBoard[i][j];
                 }
                 catch (NullReferenceException)
                 {

@@ -29,17 +29,23 @@ public static class Board
     private const int CreateFrames = 6;
     private static int _countCreateFrames;
 
-    public static int[][] MoveBoard;
+    public static int[][] MoveNumBoard;
     public static int[][] DeleteAfterMoveBoard;
     private static Direction _directionInAnimation;
 
     public static GameObject[][] Instances;
+
     public static int MovesCount;
     public static int Score;
+
+    private static Vector2 _cellSize;
+    private static Vector2 _spacing;
 
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
         _panelManager = new PanelManager();
+        _cellSize = cellSize;
+        _spacing = spacing;
 
         // panelMap= new Dictionary<PanelManager.Panel, float>
         _panelMap = new Dictionary<int, float>
@@ -51,8 +57,13 @@ public static class Board
 
         _canvas = GameObject.Find("Canvas");
 
-        InitPosArray(parentPos, cellSize, spacing);
+        InitPosArray(parentPos);
 
+        InitBoard();
+    }
+
+    public static void InitBoard()
+    {
         // Debug.Log("Board Init");
         CurrentBoard = new[]
         {
@@ -90,21 +101,25 @@ public static class Board
         StartCreatingAnimation();
     }
 
-    private static Vector2 _cellSize;
-    private static Vector2 _spacing;
-
-    private static void InitPosArray(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
+    public static void Reset()
     {
-        // Debug.Log("position:" + parentPos);
-        // Debug.Log("cellSize:" + cellSize);
-        // Debug.Log("spacing:" + spacing);
+        for (var row = 0; row < 4; row++)
+        {
+            for (var col = 0; col < 4; col++)
+            {
+                UnityEngine.Object.Destroy(Instances[row][col]);
+            }
+        }
 
-        _cellSize = cellSize;
-        _spacing = spacing;
+        InitBoard();
+    }
 
+
+    private static void InitPosArray(Vector2 parentPos)
+    {
         var topLeftPos = new Vector2(
-            parentPos.x - (cellSize.x + spacing.x) * 1.5f,
-            parentPos.y - (cellSize.y + spacing.y) * 1.5f
+            parentPos.x - (_cellSize.x + _spacing.x) * 1.5f,
+            parentPos.y - (_cellSize.y + _spacing.y) * 1.5f
         );
         _posArray = new Vector2[4][];
         for (int i = 0; i < 4; i++)
@@ -118,8 +133,8 @@ public static class Board
         {
             {
                 var vec = new Vector2(
-                    topLeftPos.x + (cellSize.x + spacing.x) * col,
-                    topLeftPos.y + (cellSize.y + spacing.y) * row
+                    topLeftPos.x + (_cellSize.x + _spacing.x) * col,
+                    topLeftPos.y + (_cellSize.y + _spacing.y) * row
                 );
                 row = 3 - row;
                 _posArray[row][col] = vec;
@@ -333,7 +348,7 @@ public static class Board
         Util.ListDebugLog("board: ", CurrentBoard);
 
         bool isMove;
-        (isMove, MoveBoard, DeleteAfterMoveBoard, CurrentBoard, IsNewBoard) =
+        (isMove, MoveNumBoard, DeleteAfterMoveBoard, CurrentBoard, IsNewBoard) =
             CalcMoveByDirection(CurrentBoard, direction);
         if (!isMove)
         {
@@ -382,15 +397,11 @@ public static class Board
     }
 
 
-    private static void MovingAnimation(bool delete = false)
+    private static void MovingAnimation()
     {
-        if (delete)
-        {
-            return;
-        }
 
         int[][] tmpBoard = new int[4][];
-
+        // 移動完了処理
         if (MoveFrames == _countMoveFrames)
         {
             for (var row = 0; row < 4; row++)
@@ -398,12 +409,12 @@ public static class Board
                 tmpBoard[row] = new int[4];
                 for (var col = 0; col < 4; col++)
                 {
-                    var moveSquare = MoveBoard[row][col];
+                    var moveNum = MoveNumBoard[row][col];
                     var instance = Instances[row][col];
                     tmpBoard[row][col] = ReferenceEquals(instance, null) ? 0 : int.Parse(instance.name[0].ToString());
 
                     //移動せずマージする場合はオブジェクト削除
-                    if (moveSquare == 0 && DeleteAfterMoveBoard[row][col] == 1)
+                    if (moveNum == 0 && DeleteAfterMoveBoard[row][col] == 1)
                     {
                         UnityEngine.Object.Destroy(Instances[row][col]);
                         // _instances[row][col] = null;
@@ -416,7 +427,7 @@ public static class Board
         {
             for (var col = 0; col < 4; col++)
             {
-                var moveSquare = MoveBoard[row][col];
+                var moveSquare = MoveNumBoard[row][col];
                 if (moveSquare == 0)
                 {
                     continue;
@@ -441,7 +452,7 @@ public static class Board
             {
                 for (var col = 0; col < 4; col++)
                 {
-                    var moveSquare = MoveBoard[row][col];
+                    var moveSquare = MoveNumBoard[row][col];
                     if (moveSquare == 0)
                     {
                         continue;
@@ -571,9 +582,5 @@ public static class Board
 
         var isFinish = CheckFinish();
         Status = isFinish ? StatusFinish : StatusWaitingInput;
-    }
-
-    public static void Reset()
-    {
     }
 }
