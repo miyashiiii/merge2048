@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BoardManager : MonoBehaviour
+public class InputManager : MonoBehaviour
 {
     public GameObject debugTextBoxUp1;
     public GameObject debugTextBoxUp2;
@@ -31,6 +32,7 @@ public class BoardManager : MonoBehaviour
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
 
+    private static readonly Queue<Direction> DirectionQue = new Queue<Direction>();
 
     // Start is called before the first frame update
     private void Start()
@@ -67,24 +69,12 @@ public class BoardManager : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        UnityEngine.Debug.Log("board status: " + Board.Status);
+        Debug.Log("board status: " + Board.Status);
 
         var mm = (Time.time / 60).ToString("00");
         var ss = (Time.time % 60).ToString("00");
         timeText.GetComponent<Text>().text = mm + ":" + ss;
 
-        switch (Board.Status)
-        {
-            case Board.StatusInMovingAnimation:
-                Board.ContinueMovingAnimation();
-                return;
-            case Board.StatusInCreateAnimation:
-                Board.ContinueCreatingAnimation();
-                return;
-            case Board.StatusFinish:
-                CheckKeyDown();
-                break;
-        }
 
         Direction direction = null;
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -124,7 +114,48 @@ public class BoardManager : MonoBehaviour
 
         debugTextBoxDown2.GetComponent<Text>().text = Board.MovesCount.ToString();
 
+        UpdateDebugTexts();
 
+        movesText.GetComponent<Text>().text = Board.MovesCount.ToString();
+
+        scoreText.GetComponent<Text>().text = Board.Score.ToString();
+        var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
+        if (highScore < Board.Score)
+        {
+            PlayerPrefs.SetInt("HIGH_SCORE", Board.Score);
+            PlayerPrefs.Save();
+
+            highScoreText.GetComponent<Text>().text = Board.Score.ToString();
+        }
+
+        if (!ReferenceEquals(null, direction))
+        {
+            DirectionQue.Enqueue(direction);
+        }
+
+        switch (Board.Status)
+        {
+            case Board.StatusInMovingAnimation:
+                Board.ContinueMovingAnimation();
+                return;
+            case Board.StatusInCreateAnimation:
+                Board.ContinueCreatingAnimation();
+                return;
+            case Board.StatusFinish:
+                return;
+        }
+
+        if (DirectionQue.Count == 0) return;
+
+        var firstDirection = DirectionQue.Dequeue();
+        // Debug.Log(direction);
+        debugTextBoxDown.GetComponent<Text>().text = firstDirection.ToString();
+        Board.Move(firstDirection);
+    }
+
+    void UpdateDebugTexts()
+    {
+        
         //1: board
         //2: move
         //3: deleteAfterMove
@@ -206,26 +237,7 @@ public class BoardManager : MonoBehaviour
         }
 
         debugTextBoxUp4.GetComponent<Text>().text = instancesStr;
-
-        movesText.GetComponent<Text>().text = Board.MovesCount.ToString();
-
-        scoreText.GetComponent<Text>().text = Board.Score.ToString();
-        var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
-        if (highScore < Board.Score)
-        {
-            PlayerPrefs.SetInt("HIGH_SCORE", Board.Score);
-            PlayerPrefs.Save();
-
-            highScoreText.GetComponent<Text>().text = Board.Score.ToString();
-        }
-
-        if (ReferenceEquals(null, direction)) return;
-
-        // Debug.Log(direction);
-        debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
-        Board.Move(direction);
     }
-
     void CheckKeyDown()
     {
     }

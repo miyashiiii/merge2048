@@ -44,6 +44,7 @@ public static class Board
 
     public static bool _fixPut = false;
 
+
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing, bool fixPut)
     {
         _panelManager = new PanelManager();
