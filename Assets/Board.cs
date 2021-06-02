@@ -43,7 +43,7 @@ public static class Board
     private static Vector2 _spacing;
 
     private static bool _fixPut = false;
-    
+
     public static float StartTime;
 
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing, bool fixPut)
@@ -51,7 +51,7 @@ public static class Board
         _cellSize = cellSize;
         _spacing = spacing;
         _fixPut = fixPut;
-        
+
         _panelManager = new PanelManager();
 
         _panelMap = new Dictionary<int, float>
@@ -70,7 +70,6 @@ public static class Board
 
     public static void InitBoard()
     {
-        
         StartTime = Time.time;
 
         // Debug.Log("Board Init");
@@ -272,6 +271,8 @@ public static class Board
                     }
 
                     mergedRow[mergedColCount] = num * 2;
+                    Score += num * 2;
+
                     isNewRow[mergedColCount] = 1;
                     mergedColCount++;
                     before = 0;
@@ -372,37 +373,21 @@ public static class Board
 
     private static bool CheckFinish()
     {
-        var jagBoard = new[]
+        var rotateBoard = Util.RotateBoardClockwise(CurrentBoard);
+        for (var i = 0; i < 4; i++)
         {
-            CurrentBoard[0],
-            CurrentBoard[1],
-            CurrentBoard[2],
-            CurrentBoard[3],
-        };
-        // if (GetEmptyIndices().Count > 1)
-        // {
-        // return;
-        // }
+            var row = CurrentBoard[i];
+            var col = rotateBoard[i];
 
-        var (_, _, _, uBoard, _) = CalcMoveByDirection(jagBoard, Direction.up);
-        var (_, _, _, dBoard, _) = CalcMoveByDirection(jagBoard, Direction.down);
-        var (_, _, _, lBoard, _) = CalcMoveByDirection(jagBoard, Direction.left);
-        var (_, _, _, rBoard, _) = CalcMoveByDirection(jagBoard, Direction.right);
-
-        //flatten
-        var array = uBoard.SelectMany(x => x).ToArray();
-        var uArray = uBoard.SelectMany(x => x).ToArray();
-        var dArray = dBoard.SelectMany(x => x).ToArray();
-        var lArray = lBoard.SelectMany(x => x).ToArray();
-        var rArray = rBoard.SelectMany(x => x).ToArray();
-
-        if (array.SequenceEqual(uArray) && array.SequenceEqual(dArray) &&
-            array.SequenceEqual(lArray) && array.SequenceEqual(rArray))
-        {
-            return true;
+            if (row[0] == row[1] || row[1] == row[2] || row[2] == row[3] ||
+                col[0] == col[1] || col[1] == col[2] || col[2] == col[3]
+            )
+            {
+                return false;
+            }
         }
 
-        return false;
+        return true;
     }
 
 
@@ -554,7 +539,6 @@ public static class Board
                     CurrentBoard[row][col] = panelNum;
                     IsNewBoard[row][col] = 1;
                     Instances[row][col] = instance;
-                    Score += panelNum;
                 }
 
                 Debug.Log(_countCreateFrames);
