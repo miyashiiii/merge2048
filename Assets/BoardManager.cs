@@ -23,7 +23,9 @@ public class BoardManager : MonoBehaviour
     public GameObject redoButton;
     public GameObject resetButton;
 
+
     public bool debug;
+    public bool fixPut;
 
 
     private Vector3 _touchStartPos;
@@ -35,7 +37,7 @@ public class BoardManager : MonoBehaviour
     {
         var glGroup = GetComponent<GridLayoutGroup>();
         var parentPos = transform.position;
-        Board.Init(parentPos, glGroup.cellSize, glGroup.spacing);
+        Board.Init(parentPos, glGroup.cellSize, glGroup.spacing, fixPut);
         if (debug)
         {
             scoreArea.SetActive(false);
@@ -55,10 +57,10 @@ public class BoardManager : MonoBehaviour
             debugTextBoxDown.SetActive(false);
             debugTextBoxDown2.SetActive(false);
         }
+
         var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
- 
+
         highScoreText.GetComponent<Text>().text = highScore.ToString();
- 
     }
 
 
@@ -66,11 +68,11 @@ public class BoardManager : MonoBehaviour
     private void Update()
     {
         UnityEngine.Debug.Log("board status: " + Board.Status);
-        
-        var mm= (Time.time/60).ToString("00");
-        var ss= (Time.time%60).ToString("00");
-        timeText.GetComponent<Text>().text = mm+":"+ss;
- 
+
+        var mm = (Time.time / 60).ToString("00");
+        var ss = (Time.time % 60).ToString("00");
+        timeText.GetComponent<Text>().text = mm + ":" + ss;
+
         switch (Board.Status)
         {
             case Board.StatusInMovingAnimation:
@@ -204,7 +206,7 @@ public class BoardManager : MonoBehaviour
         }
 
         debugTextBoxUp4.GetComponent<Text>().text = instancesStr;
-        
+
         movesText.GetComponent<Text>().text = Board.MovesCount.ToString();
 
         scoreText.GetComponent<Text>().text = Board.Score.ToString();
@@ -216,12 +218,12 @@ public class BoardManager : MonoBehaviour
 
             highScoreText.GetComponent<Text>().text = Board.Score.ToString();
         }
+
         if (ReferenceEquals(null, direction)) return;
 
         // Debug.Log(direction);
         debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
         Board.Move(direction);
-
     }
 
     void CheckKeyDown()
@@ -296,6 +298,5 @@ public class BoardManager : MonoBehaviour
         debugTextBoxDown.GetComponent<Text>().text = direction.ToString();
         Board.Move(direction);
         debugTextBoxDown2.GetComponent<Text>().text = Board.MovesCount.ToString();
-
     }
 }

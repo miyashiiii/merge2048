@@ -1170,7 +1170,7 @@ RectTransform:
   m_GameObject: {fileID: 555513664}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 1}
   m_Children: []
   m_Father: {fileID: 1526905248}
   m_RootOrder: 14
@@ -2014,7 +2014,7 @@ RectTransform:
   m_GameObject: {fileID: 979333210}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 1}
   m_Children: []
   m_Father: {fileID: 1526905248}
   m_RootOrder: 13
@@ -2750,7 +2750,8 @@ MonoBehaviour:
   undoButton: {fileID: 979333210}
   redoButton: {fileID: 555513664}
   resetButton: {fileID: 372039450}
-  debug: 1
+  debug: 0
+  fixPut: 0
 --- !u!1001 &1166298783
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Random = UnityEngine.Random;
 
 public static class Board
 {
@@ -41,12 +42,14 @@ public static class Board
     private static Vector2 _cellSize;
     private static Vector2 _spacing;
 
-    public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
+    public static bool _fixPut = false;
+
+    public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing, bool fixPut)
     {
         _panelManager = new PanelManager();
         _cellSize = cellSize;
         _spacing = spacing;
-
+        Board._fixPut = fixPut;
         // panelMap= new Dictionary<PanelManager.Panel, float>
         _panelMap = new Dictionary<int, float>
         {
@@ -171,8 +174,8 @@ public static class Board
     static void RandPut()
     {
         // select panel
-        // var p = Util.RandomWithWeight(_panelMap);
-        var p = 2; // TODO DEBUG
+        var p = _fixPut ? 2 : Util.RandomWithWeight(_panelMap);
+
         var emptyIndices = GetEmptyIndices(CurrentBoard);
         if (emptyIndices.Count == 0)
         {
@@ -180,8 +183,7 @@ public static class Board
             return;
         }
 
-        // var randIdx = emptyIndices[Random.Range(0, emptyIndices.Count)];
-        var randIdx = emptyIndices[0]; //TODO DEBUG
+        var randIdx = _fixPut ? emptyIndices[0] : emptyIndices[Random.Range(0, emptyIndices.Count)];
         PUT(p, randIdx);
     }
 
@@ -417,14 +419,13 @@ public static class Board
                     var instance = Instances[row][col];
                     // tmpBoard[row][col] = ReferenceEquals(instance, null) ? 0 : int.Parse(instance.name[0].ToString());
                     // 移動せずマージする場合はオブジェクト削除
-                     if (moveNum == 0 && DeleteAfterMoveBoard[row][col] == 1)
-                     // if (DeleteAfterMoveBoard[row][col] == 1)
-                     {
-                         UnityEngine.Object.Destroy(instance);
-                         Instances[row][col] = null;
-                     
-                         // _instances[row][col] = null;
-                     }
+                    if (moveNum == 0 && DeleteAfterMoveBoard[row][col] == 1)
+                    {
+                        UnityEngine.Object.Destroy(instance);
+                        Instances[row][col] = null;
+
+                        // _instances[row][col] = null;
+                    }
                 }
             }
         }
@@ -438,6 +439,7 @@ public static class Board
                 {
                     continue;
                 }
+
                 // 最終フレームかつ削除するパネルなら削除してcontinue
                 if (MoveFrames == _countMoveFrames && DeleteAfterMoveBoard[row][col] == 1)
                 {
@@ -445,7 +447,6 @@ public static class Board
                     Instances[row][col] = null;
                     continue;
                 }
-
 
 
                 var distance = moveSquare * (_cellSize.x + _spacing.x) / (MoveFrames + 1);
@@ -459,44 +460,17 @@ public static class Board
         if (MoveFrames == _countMoveFrames)
         {
             // int[][] putCheckBoard = new int[4][];
-            
+
             for (var row = 0; row < 4; row++)
             {
-                // tmpBoard[row] = new int[4];
-
                 for (var col = 0; col < 4; col++)
                 {
                     var moveSquare = MoveNumBoard[row][col];
-                    // if (moveSquare == 0)
-                    // {
-                    //     continue;
-                    // }
 
                     var (nextRow, nextCol) = _directionInAnimation.GETNext(moveSquare, row, col);
 
-                    // var num = tmpBoard[row][col];
-                    // var p = _panelManager.PanelMap[num];
-
-                    // var clone = UnityEngine.Object.Instantiate(p, _posArray[nextRow][nextCol], Quaternion.identity);
-                    // Debug.Log("move row: " + row + ", col:" + col);
-                    // Util.JagListDebugLog("move board", CurrentBoard);
-                    // Debug.Log("move value: " + CurrentBoard[row][col]);
-                    // clone.name = p.ToString();
-                    //
-                    // clone.transform.SetParent(_canvas.transform);
-                    //
-                    // UnityEngine.Object.Destroy(Instances[row][col]);
-                    // Instances[nextRow][nextCol] = clone;
-                    //
-                    // Instances[row][col] = null;
                     if (Instances[row][col] == null) continue;
                     tmpInstances[nextRow][nextCol] = Instances[row][col];
-                    // tmpBoard[nextRow][nextCol] = 1;
-                    // // 移動済みパネルを削除しないようチェック
-                    // if (tmpBoard[row][col] == 0)
-                    // {
-                    //     Instances[row][col] = null;
-                    // }
                 }
             }
 
