@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class InfoPanelView : MonoBehaviour
 {
-    
     public GameObject debugTextBoxUp1;
     public GameObject debugTextBoxUp2;
     public GameObject debugTextBoxUp3;
@@ -62,12 +61,6 @@ public class InfoPanelView : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        var time = Time.time-BoardData.StartTime;
-        var mm = (time / 60).ToString("00");
-        var ss = (time % 60).ToString("00");
-        timeText.GetComponent<Text>().text = mm + ":" + ss;
-
-
         UpdateDebugTexts();
 
         movesText.GetComponent<Text>().text = BoardData.MovesCount.ToString();
@@ -90,6 +83,13 @@ public class InfoPanelView : MonoBehaviour
                 debugTextBoxDown.GetComponent<Text>().text = "GameOver";
                 debugTextBoxDown.SetActive(true);
 
+                break;
+            default:
+
+                var time = Time.time - BoardData.StartTime;
+                var mm = (time / 60).ToString("00");
+                var ss = (time % 60).ToString("00");
+                timeText.GetComponent<Text>().text = mm + ":" + ss;
                 break;
         }
     }
