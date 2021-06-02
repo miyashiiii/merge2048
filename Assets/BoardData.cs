@@ -1,16 +1,11 @@
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Random = UnityEngine.Random;
 
 public static class BoardData
 {
-
-
     public static int[][] CurrentBoard;
-
-
 
 
     public static int[][] IsNewBoard;
@@ -22,7 +17,7 @@ public static class BoardData
     public static int MovesCount;
     public static int Score;
 
-    private static bool _fixPut = false;
+    private static bool _fixPut;
 
     public static float StartTime;
 
@@ -31,13 +26,11 @@ public static class BoardData
         _fixPut = fixPut;
 
 
-
-
-
         InitBoard();
     }
 
-    public static void InitBoard()
+
+    private static void InitBoard()
     {
         StartTime = Time.time;
 
@@ -73,11 +66,9 @@ public static class BoardData
 
     public static void Reset()
     {
-
         MovesCount = 0;
         InitBoard();
     }
-
 
 
     private static List<int> GetEmptyIndices(int[][] board)
@@ -88,9 +79,9 @@ public static class BoardData
     private static List<int> GetIndices(int p, int[][] board)
     {
         var result = new List<int>();
-        for (int i = 0; i < 4; i++)
+        for (var i = 0; i < 4; i++)
         {
-            for (int j = 0; j < 4; j++)
+            for (var j = 0; j < 4; j++)
             {
                 if (board[i][j] == p)
                 {
@@ -136,11 +127,6 @@ public static class BoardData
         IsNewBoard[row][col] = 1;
     }
 
-    private static void Finish()
-    {
-        GameManager.Status = GameManager.StatusFinish;
-        // Debug.Log("Finish");
-    }
 
     private static (bool, int[][], int[][], int[][], int[][]) CalcMove(int[][] rows)
     {
@@ -294,12 +280,11 @@ public static class BoardData
         var rotateBoard = Util.RotateBoardClockwise(CurrentBoard);
         for (var i = 0; i < 4; i++)
         {
-            
             var row = CurrentBoard[i];
-            if (row.Contains(0))  return false; 
+            if (row.Contains(0)) return false;
             var col = rotateBoard[i];
-            if (col.Contains(0))  return false; 
-            
+            if (col.Contains(0)) return false;
+
             if (row[0] == row[1] || row[1] == row[2] || row[2] == row[3] ||
                 col[0] == col[1] || col[1] == col[2] || col[2] == col[3]
             )
@@ -310,9 +295,4 @@ public static class BoardData
 
         return true;
     }
-
-
-
-
-
 }

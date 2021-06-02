@@ -42,7 +42,7 @@ public static class Util
             log = tag + ": " + string.Join(",  \\ ", l.Select(obj =>
                 string.Join(", ", obj.Select(o => o.ToString()))));
         }
-        catch (ArgumentException e)
+        catch (ArgumentException )
         {
             log=null;
         }

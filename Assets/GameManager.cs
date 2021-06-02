@@ -1,8 +1,5 @@
 using UnityEngine;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Random = UnityEngine.Random;
 
 public static class GameManager
 {
@@ -14,7 +11,7 @@ public static class GameManager
     public static int Status = StatusWaitingInput;
 
 
-    public static Dictionary<int, float> PanelRatioMap = new Dictionary<int, float>
+    public static readonly Dictionary<int, float> PanelRatioMap = new Dictionary<int, float>
     {
         {2, 0.9f},
         {4, 0.1f},

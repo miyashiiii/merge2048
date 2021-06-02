@@ -1,18 +1,12 @@
 using UnityEngine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Random = UnityEngine.Random;
 
 public static class BoardView
 {
-
-
     private static GameObject _canvas;
     private static Vector2[][] _posArray;
 
 
-    private static NumPanel _numPanel = new NumPanel();
+    private static readonly NumPanel NumPanel = new NumPanel();
 
 
     private const int MoveFrames = 5;
@@ -31,7 +25,7 @@ public static class BoardView
 
     public static float StartTime;
 
-    public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing )
+    public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
         _cellSize = cellSize;
         _spacing = spacing;
@@ -44,7 +38,7 @@ public static class BoardView
         InitBoard();
     }
 
-    public static void InitBoard()
+    private static void InitBoard()
     {
         Instances = new[]
         {
@@ -53,10 +47,7 @@ public static class BoardView
             new GameObject[4],
             new GameObject[4],
         };
-
-
     }
-
 
 
     private static void InitPosArray(Vector2 parentPos)
@@ -89,9 +80,6 @@ public static class BoardView
     }
 
 
-
-
-
     public static void MovingAnimation()
     {
         int[][] tmpBoard = new int[4][];
@@ -113,7 +101,7 @@ public static class BoardView
                     // 移動せずマージする場合はオブジェクト削除
                     if (moveNum == 0 && BoardData.DeleteAfterMoveBoard[row][col] == 1)
                     {
-                        UnityEngine.Object.Destroy(instance);
+                        Object.Destroy(instance);
                         Instances[row][col] = null;
 
                         // _instances[row][col] = null;
@@ -135,7 +123,7 @@ public static class BoardView
                 // 最終フレームかつ削除するパネルなら削除してcontinue
                 if (MoveFrames == _countMoveFrames && BoardData.DeleteAfterMoveBoard[row][col] == 1)
                 {
-                    UnityEngine.Object.Destroy(Instances[row][col]);
+                    Object.Destroy(Instances[row][col]);
                     Instances[row][col] = null;
                     continue;
                 }
@@ -193,7 +181,7 @@ public static class BoardView
         StartCreatingAnimation();
     }
 
-    static void CreatingAnimation()
+    private static void CreatingAnimation()
     {
         Util.JagListDebugLog("IsNewBoard", BoardData.IsNewBoard);
         for (var row = 0; row < 4; row++)
@@ -227,9 +215,9 @@ public static class BoardView
                         Debug.Log("---- ERROR empty panel put ----");
                     }
 
-                    var p = _numPanel.NumPanelMap[panelNum];
+                    var p = NumPanel.NumPanelMap[panelNum];
                     // Debug.Log("Put");
-                    var instance = UnityEngine.Object.Instantiate(p, _posArray[row][col], Quaternion.identity);
+                    var instance = Object.Instantiate(p, _posArray[row][col], Quaternion.identity);
                     instance.transform.SetParent(_canvas.transform);
                     BoardData.CurrentBoard[row][col] = panelNum;
                     BoardData.IsNewBoard[row][col] = 1;
@@ -266,17 +254,17 @@ public static class BoardView
         var isFinish = BoardData.CheckFinish();
         GameManager.Status = isFinish ? GameManager.StatusFinish : GameManager.StatusWaitingInput;
     }
+
     public static void Reset()
     {
         for (var row = 0; row < 4; row++)
         {
             for (var col = 0; col < 4; col++)
             {
-                UnityEngine.Object.Destroy(Instances[row][col]);
+                Object.Destroy(Instances[row][col]);
             }
         }
 
         InitBoard();
     }
- 
 }
