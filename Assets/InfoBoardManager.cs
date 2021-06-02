@@ -49,6 +49,8 @@ public class InfoBoardManager : MonoBehaviour
             debugTextBoxUp4.SetActive(false);
             debugTextBoxDown.SetActive(false);
             debugTextBoxDown2.SetActive(false);
+            undoButton.SetActive(false); //TODO
+            redoButton.SetActive(false); //TODO
         }
 
         var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
@@ -60,8 +62,9 @@ public class InfoBoardManager : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        var mm = (Time.time / 60).ToString("00");
-        var ss = (Time.time % 60).ToString("00");
+        var time = Time.time-Board.StartTime;
+        var mm = (time / 60).ToString("00");
+        var ss = (time % 60).ToString("00");
         timeText.GetComponent<Text>().text = mm + ":" + ss;
 
 

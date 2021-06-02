@@ -42,16 +42,18 @@ public static class Board
     private static Vector2 _cellSize;
     private static Vector2 _spacing;
 
-    public static bool _fixPut = false;
-
+    private static bool _fixPut = false;
+    
+    public static float StartTime;
 
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing, bool fixPut)
     {
-        _panelManager = new PanelManager();
         _cellSize = cellSize;
         _spacing = spacing;
-        Board._fixPut = fixPut;
-        // panelMap= new Dictionary<PanelManager.Panel, float>
+        _fixPut = fixPut;
+        
+        _panelManager = new PanelManager();
+
         _panelMap = new Dictionary<int, float>
         {
             {2, 0.9f},
@@ -68,6 +70,9 @@ public static class Board
 
     public static void InitBoard()
     {
+        
+        StartTime = Time.time;
+
         // Debug.Log("Board Init");
         CurrentBoard = new[]
         {
