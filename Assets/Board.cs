@@ -376,9 +376,12 @@ public static class Board
         var rotateBoard = Util.RotateBoardClockwise(CurrentBoard);
         for (var i = 0; i < 4; i++)
         {
+            
             var row = CurrentBoard[i];
+            if (row.Contains(0))  return false; 
             var col = rotateBoard[i];
-
+            if (col.Contains(0))  return false; 
+            
             if (row[0] == row[1] || row[1] == row[2] || row[2] == row[3] ||
                 col[0] == col[1] || col[1] == col[2] || col[2] == col[3]
             )

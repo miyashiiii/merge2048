@@ -73,26 +73,24 @@ public class InfoBoardManager : MonoBehaviour
         movesText.GetComponent<Text>().text = Board.MovesCount.ToString();
 
         scoreText.GetComponent<Text>().text = Board.Score.ToString();
-        var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
-        if (highScore < Board.Score)
-        {
-            PlayerPrefs.SetInt("HIGH_SCORE", Board.Score);
-            PlayerPrefs.Save();
-
-            highScoreText.GetComponent<Text>().text = Board.Score.ToString();
-        }
 
 
         switch (Board.Status)
         {
-            case Board.StatusInMovingAnimation:
-                Board.ContinueMovingAnimation();
-                return;
-            case Board.StatusInCreateAnimation:
-                Board.ContinueCreatingAnimation();
-                return;
             case Board.StatusFinish:
-                return;
+                var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
+                if (highScore < Board.Score)
+                {
+                    PlayerPrefs.SetInt("HIGH_SCORE", Board.Score);
+                    PlayerPrefs.Save();
+
+                    highScoreText.GetComponent<Text>().text = Board.Score.ToString();
+                }
+
+                debugTextBoxDown.GetComponent<Text>().text = "GameOver";
+                debugTextBoxDown.SetActive(true);
+
+                break;
         }
     }
 
