@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InfoBoardManager : MonoBehaviour
+public class InfoPanelView : MonoBehaviour
 {
+    
     public GameObject debugTextBoxUp1;
     public GameObject debugTextBoxUp2;
     public GameObject debugTextBoxUp3;
@@ -62,7 +62,7 @@ public class InfoBoardManager : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        var time = Time.time-Board.StartTime;
+        var time = Time.time-BoardData.StartTime;
         var mm = (time / 60).ToString("00");
         var ss = (time % 60).ToString("00");
         timeText.GetComponent<Text>().text = mm + ":" + ss;
@@ -70,21 +70,21 @@ public class InfoBoardManager : MonoBehaviour
 
         UpdateDebugTexts();
 
-        movesText.GetComponent<Text>().text = Board.MovesCount.ToString();
+        movesText.GetComponent<Text>().text = BoardData.MovesCount.ToString();
 
-        scoreText.GetComponent<Text>().text = Board.Score.ToString();
+        scoreText.GetComponent<Text>().text = BoardData.Score.ToString();
 
 
-        switch (Board.Status)
+        switch (GameManager.Status)
         {
-            case Board.StatusFinish:
+            case GameManager.StatusFinish:
                 var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
-                if (highScore < Board.Score)
+                if (highScore < BoardData.Score)
                 {
-                    PlayerPrefs.SetInt("HIGH_SCORE", Board.Score);
+                    PlayerPrefs.SetInt("HIGH_SCORE", BoardData.Score);
                     PlayerPrefs.Save();
 
-                    highScoreText.GetComponent<Text>().text = Board.Score.ToString();
+                    highScoreText.GetComponent<Text>().text = BoardData.Score.ToString();
                 }
 
                 debugTextBoxDown.GetComponent<Text>().text = "GameOver";
@@ -96,7 +96,7 @@ public class InfoBoardManager : MonoBehaviour
 
     void UpdateDebugTexts()
     {
-        debugTextBoxDown2.GetComponent<Text>().text = Board.MovesCount.ToString();
+        debugTextBoxDown2.GetComponent<Text>().text = BoardData.MovesCount.ToString();
         //1: board
         //2: move
         //3: deleteAfterMove
@@ -108,12 +108,12 @@ public class InfoBoardManager : MonoBehaviour
             {
                 try
                 {
-                    boardStr += Board.CurrentBoard[i][j];
+                    boardStr += BoardData.CurrentBoard[i][j];
                 }
                 catch (NullReferenceException)
                 {
                     Util.JagListDebugLog("####### ERROR _board ######## i: " + i + ", j: " + j + ", board",
-                        Board.CurrentBoard);
+                        BoardData.CurrentBoard);
                 }
             }
 
@@ -129,7 +129,7 @@ public class InfoBoardManager : MonoBehaviour
             {
                 try
                 {
-                    moveBoardStr += Board.MoveNumBoard[i][j];
+                    moveBoardStr += BoardData.MoveNumBoard[i][j];
                 }
                 catch (NullReferenceException)
                 {
@@ -148,7 +148,7 @@ public class InfoBoardManager : MonoBehaviour
             {
                 try
                 {
-                    deleteAfterMoveStr += Board.DeleteAfterMoveBoard[i][j];
+                    deleteAfterMoveStr += BoardData.DeleteAfterMoveBoard[i][j];
                 }
                 catch (NullReferenceException)
                 {
@@ -164,13 +164,13 @@ public class InfoBoardManager : MonoBehaviour
         {
             for (var j = 0; j < 4; j++)
             {
-                if (Board.Instances[i][j] == null)
+                if (BoardView.Instances[i][j] == null)
                 {
                     instancesStr += 0;
                 }
                 else
                 {
-                    instancesStr += Board.Instances[i][j].name[0];
+                    instancesStr += BoardView.Instances[i][j].name[0];
                 }
             }
 

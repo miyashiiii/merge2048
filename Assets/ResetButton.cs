@@ -6,6 +6,6 @@ public class ResetButton : MonoBehaviour
 {
     public void OnClick()
     {
-    Board.Reset();
+    GameManager.Reset();
     }
 }

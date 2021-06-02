@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-internal class PanelManager
+internal class NumPanel
 {
-    public readonly Dictionary<int, GameObject> PanelMap;
+    public readonly Dictionary<int, GameObject> NumPanelMap;
 
-    public PanelManager()
+    public NumPanel()
     {
-        PanelMap = new Dictionary<int, GameObject>()
+        NumPanelMap = new Dictionary<int, GameObject>()
         {
             {0, GetPanel()},
             {2, GetPanel(2)},

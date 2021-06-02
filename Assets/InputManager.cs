@@ -18,16 +18,15 @@ public class InputManager : MonoBehaviour
     {
         var glGroup = GetComponent<GridLayoutGroup>();
         var parentPos = transform.position;
-        Board.Init(parentPos, glGroup.cellSize, glGroup.spacing, fixPut);
+        GameManager.Init(parentPos, glGroup.cellSize, glGroup.spacing, fixPut);
 
-        var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
     }
 
 
     // Update is called once per frame
     private void Update()
     {
-        Debug.Log("board status: " + Board.Status);
+        Debug.Log("game status: " + GameManager.Status);
 
         Direction direction = null;
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -70,15 +69,16 @@ public class InputManager : MonoBehaviour
             DirectionQue.Enqueue(direction);
         }
 
-        switch (Board.Status)
+        switch (GameManager.Status)
         {
-            case Board.StatusInMovingAnimation:
-                Board.ContinueMovingAnimation();
+            case GameManager.StatusInMovingAnimation:
+                BoardView.ContinueMovingAnimation();
                 return;
-            case Board.StatusInCreateAnimation:
-                Board.ContinueCreatingAnimation();
+            case GameManager.StatusInCreateAnimation:
+                BoardView.ContinueCreatingAnimation();
                 return;
-            case Board.StatusFinish:
+            case GameManager.StatusFinish:
+            DirectionQue.Clear();
                 return;
         }
 
@@ -86,7 +86,7 @@ public class InputManager : MonoBehaviour
 
         var firstDirection = DirectionQue.Dequeue();
         // Debug.Log(direction);
-        Board.Move(firstDirection);
+        GameManager.Move(firstDirection);
     }
 
 

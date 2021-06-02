@@ -1,7 +1,7 @@
 public abstract class Direction
 {
-    public virtual Board.ConvertBoard ConvertFunc => Util.NoRotate;
-    public virtual Board.ConvertBoard ReverseFunc => Util.NoRotate;
+    public virtual GameManager.ConvertBoard ConvertFunc => Util.NoRotate;
+    public virtual GameManager.ConvertBoard ReverseFunc => Util.NoRotate;
 
     public abstract (float, float) Get2dDistance(float distance);
     public abstract (int, int) GETNext(int moveSquare, int row, int col);
@@ -13,8 +13,8 @@ public abstract class Direction
 
 public class Up : Direction
 {
-    public override Board.ConvertBoard ConvertFunc => Util.RotateBoardAnticlockwise;
-    public override Board.ConvertBoard ReverseFunc => Util.RotateBoardClockwise;
+    public override GameManager.ConvertBoard ConvertFunc => Util.RotateBoardAnticlockwise;
+    public override GameManager.ConvertBoard ReverseFunc => Util.RotateBoardClockwise;
 
     public override (float, float) Get2dDistance(float distance)
     {
@@ -34,8 +34,8 @@ public class Up : Direction
 
 public class Down : Direction
 {
-    public override Board.ConvertBoard ConvertFunc => Util.RotateBoardClockwise;
-    public override Board.ConvertBoard ReverseFunc => Util.RotateBoardAnticlockwise;
+    public override GameManager.ConvertBoard ConvertFunc => Util.RotateBoardClockwise;
+    public override GameManager.ConvertBoard ReverseFunc => Util.RotateBoardAnticlockwise;
 
     public override (float, float) Get2dDistance(float distance)
     {
@@ -55,8 +55,8 @@ public class Down : Direction
 
 public class Left : Direction
 {
-    public override Board.ConvertBoard ConvertFunc => Util.NoRotate;
-    public override Board.ConvertBoard ReverseFunc => Util.NoRotate;
+    public override GameManager.ConvertBoard ConvertFunc => Util.NoRotate;
+    public override GameManager.ConvertBoard ReverseFunc => Util.NoRotate;
 
     public override (float, float) Get2dDistance(float distance)
     {
@@ -76,8 +76,8 @@ public class Left : Direction
 
 public class Right : Direction
 {
-    public override Board.ConvertBoard ConvertFunc => Util.FlipBoard;
-    public override Board.ConvertBoard ReverseFunc => Util.FlipBoard;
+    public override GameManager.ConvertBoard ConvertFunc => Util.FlipBoard;
+    public override GameManager.ConvertBoard ReverseFunc => Util.FlipBoard;
 
     public override (float, float) Get2dDistance(float distance)
     {
