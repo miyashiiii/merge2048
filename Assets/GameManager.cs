@@ -32,7 +32,6 @@ public static class GameManager
     }
 
 
-    public delegate int[][] ConvertBoard(int[][] board);
 
 
     public static void Move(Direction direction)

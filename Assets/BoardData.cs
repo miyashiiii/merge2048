@@ -229,8 +229,8 @@ public static class BoardData
     public delegate int[][] ConvertBoard(int[][] board);
 
     private static (bool, int[][], int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard,
-        GameManager.ConvertBoard convertFunc,
-        GameManager.ConvertBoard reverseFunc)
+        Util.ConvertBoard convertFunc,
+        Util.ConvertBoard reverseFunc)
     {
         // int[][] tmpMergedBoard;
         // int[][] tmpMoveBoard;

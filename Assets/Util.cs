@@ -102,5 +102,6 @@ public static class Util
     {
         return board;
     }
+    public delegate int[][] ConvertBoard(int[][] board);
  
 }
