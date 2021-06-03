@@ -17,15 +17,12 @@ public static class BoardData
     public static int MovesCount;
     public static int Score;
 
-    private static bool _fixPut;
 
     public static float StartTime;
 
-    public static void Init(bool fixPut)
+    public static void Init()
     {
-        _fixPut = fixPut;
-
-
+        GameManager.AddRestartListener(InitBoard);
         InitBoard();
     }
 
@@ -97,7 +94,7 @@ public static class BoardData
     public static void RandPut()
     {
         // select panel
-        var p = _fixPut ? 2 : Util.RandomWithWeight(Config.PanelRatioMap);
+        var p = Config.fixPut ? 2 : Util.RandomWithWeight(Config.PanelRatioMap);
 
         var emptyIndices = GetEmptyIndices(CurrentBoard);
         if (emptyIndices.Count == 0)
@@ -106,7 +103,7 @@ public static class BoardData
             return;
         }
 
-        var randIdx = _fixPut ? emptyIndices[0] : emptyIndices[Random.Range(0, emptyIndices.Count)];
+        var randIdx = Config.fixPut ? emptyIndices[0] : emptyIndices[Random.Range(0, emptyIndices.Count)];
         PUT(p, randIdx);
     }
 

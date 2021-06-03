@@ -21,8 +21,6 @@ public static class BoardView
     private static Vector2 _spacing;
 
 
-    public static float StartTime;
-
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
     {
         _cellSize = cellSize;
@@ -30,6 +28,8 @@ public static class BoardView
 
 
         _canvas = GameObject.Find("Canvas");
+
+        GameManager.AddClearListener(OnClear);
 
         InitPosArray(parentPos);
 
@@ -237,6 +237,8 @@ public static class BoardView
     }
 
     public static void ContinueCreatingAnimation()
+
+
     {
         _countCreateFrames++;
         // Debug.Log("CountMoveFrames: " + CountMoveFrames);
@@ -250,10 +252,17 @@ public static class BoardView
         _countCreateFrames = 0;
 
         var isFinish = BoardData.CheckFinish();
-        GameManager.Status = isFinish ? GameManager.StatusFinish : GameManager.StatusWaitingInput;
+        if (isFinish)
+        {
+            GameManager.OnFinish();
+        }
+        else
+        {
+            GameManager.Status = GameManager.StatusWaitingInput;
+        }
     }
 
-    public static void Reset()
+    public static void OnClear()
     {
         for (var row = 0; row < 4; row++)
         {

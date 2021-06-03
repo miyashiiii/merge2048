@@ -24,13 +24,10 @@ public class InfoPanelView : MonoBehaviour
     public GameObject resetButton;
 
 
-    public bool debug;
-
-
     // Start is called before the first frame update
     private void Start()
     {
-        if (debug)
+        if (Config.debug)
         {
             scoreArea.SetActive(false);
             highScoreArea.SetActive(false);
@@ -55,8 +52,34 @@ public class InfoPanelView : MonoBehaviour
         var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
 
         highScoreText.GetComponent<Text>().text = highScore.ToString();
+
+        GameManager.AddFinishListener(OnFinish);
+        GameManager.AddClearListener(OnClear);
     }
 
+    void OnFinish()
+    {
+        var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
+        if (highScore < BoardData.Score)
+        {
+            PlayerPrefs.SetInt("HIGH_SCORE", BoardData.Score);
+            PlayerPrefs.Save();
+
+            highScoreText.GetComponent<Text>().text = BoardData.Score.ToString();
+        }
+
+        debugTextBoxDown.GetComponent<Text>().text = "GameOver";
+        debugTextBoxDown.SetActive(true);
+        InGame = false;
+    }
+
+    void OnClear()
+    {
+        debugTextBoxDown.SetActive(false);
+        InGame = true;
+    }
+
+    private bool InGame = true;
 
     // Update is called once per frame
     private void Update()
@@ -67,35 +90,12 @@ public class InfoPanelView : MonoBehaviour
 
         scoreText.GetComponent<Text>().text = BoardData.Score.ToString();
 
-
-        switch (GameManager.Status)
+        if (InGame)
         {
-            case GameManager.StatusFinish:
-                var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
-                if (highScore < BoardData.Score)
-                {
-                    PlayerPrefs.SetInt("HIGH_SCORE", BoardData.Score);
-                    PlayerPrefs.Save();
-
-                    highScoreText.GetComponent<Text>().text = BoardData.Score.ToString();
-                }
-
-                debugTextBoxDown.GetComponent<Text>().text = "GameOver";
-                debugTextBoxDown.SetActive(true);
-
-                break;
-            default:
-
-                var time = Time.time - BoardData.StartTime;
-                var mm = ((int) time / 60).ToString("00");
-                var ss = ((int) time % 60).ToString("00");
-                timeText.GetComponent<Text>().text = mm + ":" + ss;
-                debugTextBoxDown.SetActive(true);
-
-                debugTextBoxDown.GetComponent<Text>().text = time.ToString();
-
-                // debugTextBoxDown.GetComponent<Text>().text = "";
-                break;
+            var time = Time.time - BoardData.StartTime;
+            var mm = ((int) time / 60).ToString("00");
+            var ss = ((int) time % 60).ToString("00");
+            timeText.GetComponent<Text>().text = mm + ":" + ss;
         }
     }
 
@@ -169,13 +169,12 @@ public class InfoPanelView : MonoBehaviour
         {
             for (var j = 0; j < 4; j++)
             {
-                if (BoardView.Instances[i][j] == null)
-                {
-                    instancesStr += 0;
-                }
-                else
+                try
                 {
                     instancesStr += BoardView.Instances[i][j].name[0];
+                }
+                catch
+                {
                 }
             }
 

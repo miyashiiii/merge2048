@@ -2,6 +2,9 @@ using System.Collections.Generic;
 
 public static class Config
 {
+    public static bool debug = false;
+    public static bool fixPut = false;
+
     public static readonly Dictionary<int, float> PanelRatioMap = new Dictionary<int, float>
     {
         {2, 0.9f},

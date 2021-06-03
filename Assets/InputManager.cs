@@ -4,20 +4,16 @@ using UnityEngine.UI;
 
 public class InputManager : MonoBehaviour
 {
-    public bool fixPut;
-
-
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
 
-    private static readonly Queue<Direction> DirectionQue = new Queue<Direction>();
 
     // Start is called before the first frame update
     private void Start()
     {
         var glGroup = GetComponent<GridLayoutGroup>();
         var parentPos = transform.position;
-        GameManager.Init(parentPos, glGroup.cellSize, glGroup.spacing, fixPut);
+        GameManager.Init(parentPos, glGroup.cellSize, glGroup.spacing);
     }
 
 
@@ -44,47 +40,26 @@ public class InputManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            direction = Direction.up;
+            direction = Direction.Up;
         }
 
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            direction = Direction.down;
+            direction = Direction.Down;
         }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            direction = Direction.left;
+            direction = Direction.Left;
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            direction = Direction.right;
+            direction = Direction.Right;
         }
 
-        if (!ReferenceEquals(null, direction))
-        {
-            DirectionQue.Enqueue(direction);
-        }
-
-        switch (GameManager.Status)
-        {
-            case GameManager.StatusInMovingAnimation:
-                BoardView.ContinueMovingAnimation();
-                return;
-            case GameManager.StatusInCreateAnimation:
-                BoardView.ContinueCreatingAnimation();
-                return;
-            case GameManager.StatusFinish:
-                DirectionQue.Clear();
-                return;
-        }
-
-        if (DirectionQue.Count == 0) return;
-
-        var firstDirection = DirectionQue.Dequeue();
         // Debug.Log(direction);
-        GameManager.Move(firstDirection);
+        GameManager.Move(direction);
     }
 
 
@@ -97,24 +72,24 @@ public class InputManager : MonoBehaviour
         {
             if (30 < directionX)
             {
-                return Direction.right;
+                return Direction.Right;
             }
 
             if (-30 > directionX)
             {
-                return Direction.left;
+                return Direction.Left;
             }
         }
         else if (Mathf.Abs(directionX) < Mathf.Abs(directionY))
         {
             if (30 < directionY)
             {
-                return Direction.up;
+                return Direction.Up;
             }
 
             if (-30 > directionY)
             {
-                return Direction.down;
+                return Direction.Down;
             }
         }
 

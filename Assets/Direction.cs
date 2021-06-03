@@ -5,10 +5,10 @@ public abstract class Direction
 
     public abstract (float, float) Get2dDistance(float distance);
     public abstract (int, int) GETNext(int moveSquare, int row, int col);
-    public static Up up = new Up();
-    public static Down down = new Down();
-    public static Left left = new Left();
-    public static Right right = new Right();
+    public static readonly Up Up = new Up();
+    public static readonly Down Down = new Down();
+    public static readonly Left Left = new Left();
+    public static readonly Right Right = new Right();
 }
 
 public class Up : Direction
