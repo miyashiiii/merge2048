@@ -9,10 +9,10 @@ public static class BoardView
     private static readonly NumPanel NumPanel = new NumPanel();
 
 
-    private const int MoveFrames = 5;
+    private const int MoveFrames = 3;
     private static int _countMoveFrames;
 
-    private const int CreateFrames = 8;
+    private const int CreateFrames = 4;
     private static int _countCreateFrames;
 
     public static Direction DirectionInAnimation;
