@@ -252,7 +252,7 @@ public static class BoardData
 
     // public static int[][] MergedBoard;
 
-    public static void Move(Direction direction)
+    public static bool Move(Direction direction)
     {
         IsNewBoard = new[]
         {
@@ -269,10 +269,11 @@ public static class BoardData
             CalcMoveByDirection(CurrentBoard, direction);
         if (!isMove)
         {
-            return;
+            return false;
         }
 
         MovesCount++;
+        return true;
     }
 
     public static bool CheckFinish()

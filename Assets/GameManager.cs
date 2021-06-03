@@ -37,12 +37,14 @@ public static class GameManager
 
     public static void Move(Direction direction)
     {
-        BoardData.Move(direction);
-
         if (Status == StatusFinish)
         {
             return;
         }
+
+        var isMove = BoardData.Move(direction);
+
+        if (!isMove) return;
 
 
         BoardView.DirectionInAnimation = direction;
