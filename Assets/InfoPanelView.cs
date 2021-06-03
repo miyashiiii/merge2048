@@ -50,6 +50,7 @@ public class InfoPanelView : MonoBehaviour
             debugTextBoxDown2.SetActive(false);
             undoButton.SetActive(false); //TODO
             redoButton.SetActive(false); //TODO
+            
         }
 
         var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
@@ -90,6 +91,7 @@ public class InfoPanelView : MonoBehaviour
                 var mm = (time / 60).ToString("00");
                 var ss = (time % 60).ToString("00");
                 timeText.GetComponent<Text>().text = mm + ":" + ss;
+                debugTextBoxDown.GetComponent<Text>().text = "";
                 break;
         }
     }
@@ -179,4 +181,5 @@ public class InfoPanelView : MonoBehaviour
 
         debugTextBoxUp4.GetComponent<Text>().text = instancesStr;
     }
+
 }
