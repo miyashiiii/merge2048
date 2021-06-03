@@ -97,7 +97,7 @@ public static class BoardData
     public static void RandPut()
     {
         // select panel
-        var p = _fixPut ? 2 : Util.RandomWithWeight(GameManager.PanelRatioMap);
+        var p = _fixPut ? 2 : Util.RandomWithWeight(Config.PanelRatioMap);
 
         var emptyIndices = GetEmptyIndices(CurrentBoard);
         if (emptyIndices.Count == 0)

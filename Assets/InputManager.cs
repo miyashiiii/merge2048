@@ -18,7 +18,6 @@ public class InputManager : MonoBehaviour
         var glGroup = GetComponent<GridLayoutGroup>();
         var parentPos = transform.position;
         GameManager.Init(parentPos, glGroup.cellSize, glGroup.spacing, fixPut);
-
     }
 
 
@@ -77,7 +76,7 @@ public class InputManager : MonoBehaviour
                 BoardView.ContinueCreatingAnimation();
                 return;
             case GameManager.StatusFinish:
-            DirectionQue.Clear();
+                DirectionQue.Clear();
                 return;
         }
 

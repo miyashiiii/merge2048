@@ -9,10 +9,8 @@ public static class BoardView
     private static readonly NumPanel NumPanel = new NumPanel();
 
 
-    private const int MoveFrames = 3;
     private static int _countMoveFrames;
 
-    private const int CreateFrames = 4;
     private static int _countCreateFrames;
 
     public static Direction DirectionInAnimation;
@@ -85,7 +83,7 @@ public static class BoardView
         int[][] tmpBoard = new int[4][];
         GameObject[][] tmpInstances = new GameObject[4][];
         // マージ済みインスタンスは削除
-        if (MoveFrames == _countMoveFrames)
+        if (Config.MoveFrames == _countMoveFrames)
         {
             for (var row = 0; row < 4; row++)
             {
@@ -121,7 +119,7 @@ public static class BoardView
                 }
 
                 // 最終フレームかつ削除するパネルなら削除してcontinue
-                if (MoveFrames == _countMoveFrames && BoardData.DeleteAfterMoveBoard[row][col] == 1)
+                if (Config.MoveFrames == _countMoveFrames && BoardData.DeleteAfterMoveBoard[row][col] == 1)
                 {
                     Object.Destroy(Instances[row][col]);
                     Instances[row][col] = null;
@@ -129,15 +127,15 @@ public static class BoardView
                 }
 
 
-                var distance = moveSquare * (_cellSize.x + _spacing.x) / (MoveFrames + 1);
-                Debug.Log("col: " + col + ", row: " + row + ", Move Frames: " + MoveFrames + ", countFrames: " +
+                var distance = moveSquare * (_cellSize.x + _spacing.x) / (Config.MoveFrames + 1);
+                Debug.Log("col: " + col + ", row: " + row + ", Move Frames: " + Config.MoveFrames + ", countFrames: " +
                           _countMoveFrames);
                 var (distanceX, distanceY) = DirectionInAnimation.Get2dDistance(distance);
                 Instances[row][col].transform.Translate(distanceX, distanceY, 0);
             }
         }
 
-        if (MoveFrames == _countMoveFrames)
+        if (Config.MoveFrames == _countMoveFrames)
         {
             // int[][] putCheckBoard = new int[4][];
 
@@ -166,7 +164,7 @@ public static class BoardView
         // finish animation
         // 移動したinstanceを削除
         MovingAnimation();
-        if (_countMoveFrames != MoveFrames)
+        if (_countMoveFrames != Config.MoveFrames)
         {
             return;
         }
@@ -197,13 +195,13 @@ public static class BoardView
                 Debug.Log("row:" + row + ", col:" + col + ", isNewSquare:" + isNewSquare);
                 const float scalePerFrame = 0.1f;
                 var scale = 1f;
-                if (_countCreateFrames <= CreateFrames / 2)
+                if (_countCreateFrames <= Config.CreateFrames / 2)
                 {
                     scale += (_countCreateFrames + 1) * scalePerFrame;
                 }
                 else
                 {
-                    scale += (CreateFrames - _countCreateFrames - 1) * scalePerFrame;
+                    scale += (Config.CreateFrames - _countCreateFrames - 1) * scalePerFrame;
                 }
 
                 // var (row, col) = NumToIndex(idx);
@@ -242,7 +240,7 @@ public static class BoardView
     {
         _countCreateFrames++;
         // Debug.Log("CountMoveFrames: " + CountMoveFrames);
-        if (_countCreateFrames != CreateFrames)
+        if (_countCreateFrames != Config.CreateFrames)
         {
             CreatingAnimation();
             return;

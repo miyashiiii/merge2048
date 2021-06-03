@@ -11,14 +11,6 @@ public static class GameManager
     public static int Status = StatusWaitingInput;
 
 
-    public static readonly Dictionary<int, float> PanelRatioMap = new Dictionary<int, float>
-    {
-        {2, 0.9f},
-        {4, 0.1f},
-        {8, 0f},
-    };
-
-
     public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing, bool fixPut)
     {
         BoardView.Init(parentPos, cellSize, spacing); //DataのInitより先に
