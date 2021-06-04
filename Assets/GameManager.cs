@@ -62,8 +62,8 @@ public class GameManager : MonoBehaviour
     public static void Reset()
     {
         
-        ClearEvent.Invoke();
-        RestartEvent.Invoke();
+        OnClear.Invoke();
+        OnRestart.Invoke();
     }
 
 
@@ -83,38 +83,38 @@ public class GameManager : MonoBehaviour
         Status = StatusInMovingAnimation;
     }
 
-    private static UnityEvent FinishEvent = null;
+    private static UnityEvent OnFinish = null;
 
     public static void AddFinishListener(UnityAction a)
     {
         // FinishEventがnullなら作成
-        FinishEvent ??= new UnityEvent();
-        FinishEvent.AddListener(a);
+        OnFinish ??= new UnityEvent();
+        OnFinish.AddListener(a);
     }
 
-    public static void OnFinish()
+    public static void Finish()
     {
         Status = StatusWaitingInput;
-        FinishEvent.Invoke();
+        OnFinish.Invoke();
     }
 
 
-    private static UnityEvent ClearEvent = null;
+    private static UnityEvent OnClear = null;
 
     public static void AddClearListener(UnityAction a)
     {
         // ResetEventがnullなら作成
-        ClearEvent ??= new UnityEvent();
-        ClearEvent.AddListener(a);
+        OnClear ??= new UnityEvent();
+        OnClear.AddListener(a);
     }
 
 
     // restart 
-    private static UnityEvent RestartEvent = null;
+    private static UnityEvent OnRestart = null;
 
     public static void AddRestartListener(UnityAction a)
     {
-        RestartEvent ??= new UnityEvent();
-        RestartEvent.AddListener(a);
+        OnRestart ??= new UnityEvent();
+        OnRestart.AddListener(a);
     }
 }

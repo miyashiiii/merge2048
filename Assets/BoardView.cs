@@ -258,7 +258,7 @@ public static class BoardView
         var isFinish = BoardData.CheckFinish();
         if (isFinish)
         {
-            GameManager.OnFinish();
+            GameManager.Finish();
         }
         else
         {
