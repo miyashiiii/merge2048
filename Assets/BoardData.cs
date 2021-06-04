@@ -58,13 +58,7 @@ public static class BoardData
         RandPut();
         RandPut();
         Score = 0;
-        BoardView.StartCreatingAnimation();
-    }
-
-    public static void Reset()
-    {
         MovesCount = 0;
-        InitBoard();
     }
 
 

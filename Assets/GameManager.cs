@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
         var parentPos = transform.position;
         BoardView.Init(parentPos, glGroup.cellSize, glGroup.spacing); //DataのInitより先に
         BoardData.Init();
+        BoardView.StartCreatingAnimation();
+ 
     }
 
     public void Update()
@@ -60,6 +62,7 @@ public class GameManager : MonoBehaviour
 
     public static void Reset()
     {
+        
         ClearEvent.Invoke();
         RestartEvent.Invoke();
     }

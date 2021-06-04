@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
 public class InputManager
 {
@@ -8,14 +6,7 @@ public class InputManager
     private Vector3 _touchEndPos;
 
 
-    // Start is called before the first frame update
-    private void Start()
-    {
-        Debug.Log("start");
-    }
 
-
-    // Update is called once per frame
     public Direction GetInput()
     {
         Debug.Log("game status: " + GameManager.Status);
