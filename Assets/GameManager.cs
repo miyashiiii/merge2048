@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
 
         BoardView.Init(); //DataのInitより先に
         BoardData.Init();
-        BoardView.StartCreatingAnimation();
+        OnRestart.Invoke();
  
     }
 
@@ -66,6 +66,7 @@ public class GameManager : MonoBehaviour
     {
         
         OnClear.Invoke();
+        BoardData.Init(); 
         OnRestart.Invoke();
     }
 

@@ -34,6 +34,7 @@ public static class BoardView
         _spacing = glGroup.spacing;
         
         GameManager.AddClearListener(OnClear);
+        GameManager.AddRestartListener(StartCreatingAnimation);
 
         InitPosArray(boardPos);
 

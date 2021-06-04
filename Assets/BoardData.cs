@@ -22,7 +22,6 @@ public static class BoardData
 
     public static void Init()
     {
-        GameManager.AddRestartListener(InitBoard);
         InitBoard();
     }
 
