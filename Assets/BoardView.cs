@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class BoardView
 {
@@ -21,17 +22,20 @@ public static class BoardView
     private static Vector2 _spacing;
 
 
-    public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
+    public static void Init()
     {
-        _cellSize = cellSize;
-        _spacing = spacing;
 
 
         _canvas = GameObject.Find("Canvas");
-
+        var board = _canvas.transform.Find( "Board" );
+        var glGroup = board.GetComponent<GridLayoutGroup>();
+        var boardPos = board.transform.position;
+        _cellSize = glGroup.cellSize;
+        _spacing = glGroup.spacing;
+        
         GameManager.AddClearListener(OnClear);
 
-        InitPosArray(parentPos);
+        InitPosArray(boardPos);
 
         InitBoard();
     }

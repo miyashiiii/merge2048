@@ -17,9 +17,8 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
-        var glGroup = GetComponent<GridLayoutGroup>();
-        var parentPos = transform.position;
-        BoardView.Init(parentPos, glGroup.cellSize, glGroup.spacing); //DataのInitより先に
+
+        BoardView.Init(); //DataのInitより先に
         BoardData.Init();
         BoardView.StartCreatingAnimation();
  
