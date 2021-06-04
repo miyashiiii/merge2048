@@ -6,12 +6,15 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public const int StatusWaitingInput = 0;
-    public const int StatusInMovingAnimation = 1;
-    public const int StatusInCreateAnimation = 2;
-    public const int StatusFinish = 3;
+    public enum Status
+    {
+        StatusWaitingInput ,
+        StatusInMovingAnimation ,
+        StatusInCreateAnimation ,
+        StatusFinish ,
+    }
 
-    public static int Status = StatusWaitingInput;
+    public static Status status = Status.StatusWaitingInput;
 
     InputManager inputManager = new InputManager();
 
@@ -32,15 +35,15 @@ public class GameManager : MonoBehaviour
             DirectionQue.Enqueue(direction);
         }
 
-        switch (Status)
+        switch (status)
         {
-            case StatusInMovingAnimation:
+            case Status.StatusInMovingAnimation:
                 BoardView.ContinueMovingAnimation();
                 return;
-            case StatusInCreateAnimation:
+            case Status.StatusInCreateAnimation:
                 BoardView.ContinueCreatingAnimation();
                 return;
-            case StatusFinish:
+            case Status.StatusFinish:
                 DirectionQue.Clear();
                 return;
         }
@@ -51,7 +54,7 @@ public class GameManager : MonoBehaviour
         }
 
         var firstDirection = DirectionQue.Dequeue();
-        if (Status == StatusFinish)
+        if (status == Status.StatusFinish)
         {
             return;
         }
@@ -80,7 +83,7 @@ public class GameManager : MonoBehaviour
 
         // moveBoardに従って移動アニメーション
         BoardView.MovingAnimation();
-        Status = StatusInMovingAnimation;
+        status = Status.StatusInMovingAnimation;
     }
 
     private static UnityEvent OnFinish = null;
@@ -94,7 +97,7 @@ public class GameManager : MonoBehaviour
 
     public static void Finish()
     {
-        Status = StatusWaitingInput;
+        status = Status.StatusWaitingInput;
         OnFinish.Invoke();
     }
 

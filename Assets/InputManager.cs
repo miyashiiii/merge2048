@@ -9,8 +9,7 @@ public class InputManager
 
     public Direction GetInput()
     {
-        Debug.Log("game status: " + GameManager.Status);
-
+        
         Direction direction = null;
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {

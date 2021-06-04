@@ -236,7 +236,7 @@ public static class BoardView
     public static void StartCreatingAnimation()
 
     {
-        GameManager.Status = GameManager.StatusInCreateAnimation;
+        GameManager.status = GameManager.Status.StatusInCreateAnimation;
         CreatingAnimation();
     }
 
@@ -262,7 +262,7 @@ public static class BoardView
         }
         else
         {
-            GameManager.Status = GameManager.StatusWaitingInput;
+            GameManager.status = GameManager.Status.StatusWaitingInput;
         }
     }
 
