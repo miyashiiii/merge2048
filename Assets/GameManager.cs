@@ -2,8 +2,9 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
-public static class GameManager
+public class GameManager : MonoBehaviour
 {
     public const int StatusWaitingInput = 0;
     public const int StatusInMovingAnimation = 1;
@@ -12,24 +13,19 @@ public static class GameManager
 
     public static int Status = StatusWaitingInput;
 
+    InputManager inputManager = new InputManager();
 
-    public static void Init(Vector2 parentPos, Vector2 cellSize, Vector2 spacing)
+    public void Start()
     {
-        BoardView.Init(parentPos, cellSize, spacing); //DataのInitより先に
+        var glGroup = GetComponent<GridLayoutGroup>();
+        var parentPos = transform.position;
+        BoardView.Init(parentPos, glGroup.cellSize, glGroup.spacing); //DataのInitより先に
         BoardData.Init();
     }
 
-    public static void Reset()
+    public void Update()
     {
-        ClearEvent.Invoke();
-        RestartEvent.Invoke();
-    }
-
-
-    private static readonly Queue<Direction> DirectionQue = new Queue<Direction>();
-
-    public static void Move(Direction direction)
-    {
+        var direction = inputManager.GetInput();
         if (direction != null)
         {
             DirectionQue.Enqueue(direction);
@@ -59,12 +55,26 @@ public static class GameManager
             return;
         }
 
-        var isMove = BoardData.Move(firstDirection);
+        Move(firstDirection);
+    }
+
+    public static void Reset()
+    {
+        ClearEvent.Invoke();
+        RestartEvent.Invoke();
+    }
+
+
+    private static readonly Queue<Direction> DirectionQue = new Queue<Direction>();
+
+    public static void Move(Direction direction)
+    {
+        var isMove = BoardData.Move(direction);
 
         if (!isMove) return;
 
 
-        BoardView.DirectionInAnimation = firstDirection;
+        BoardView.DirectionInAnimation = direction;
 
         // moveBoardに従って移動アニメーション
         BoardView.MovingAnimation();

@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InputManager : MonoBehaviour
+public class InputManager
 {
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
@@ -11,14 +11,12 @@ public class InputManager : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        var glGroup = GetComponent<GridLayoutGroup>();
-        var parentPos = transform.position;
-        GameManager.Init(parentPos, glGroup.cellSize, glGroup.spacing);
+        Debug.Log("start");
     }
 
 
     // Update is called once per frame
-    private void Update()
+    public Direction GetInput()
     {
         Debug.Log("game status: " + GameManager.Status);
 
@@ -59,7 +57,7 @@ public class InputManager : MonoBehaviour
         }
 
         // Debug.Log(direction);
-        GameManager.Move(direction);
+        return direction;
     }
 
 
