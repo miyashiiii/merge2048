@@ -22,15 +22,31 @@ public static class BoardView
 
     public static void Init()
     {
-
-
+        Application.targetFrameRate = 60;
+ 
+        int baseH = 2160;
+        int baseW = 1080;
+        float baseScreenAspect =(float) baseH / (float)baseW;
+        float currentScreenAspect = (float)Screen.height / (float)Screen.width;
+        float scale;
+        if (baseScreenAspect < currentScreenAspect)
+        {
+           //縦長
+           scale = (float)Screen.width / (float)baseW;
+        }
+        else
+        {
+            scale = (float)Screen.height / (float)baseH;
+        }
+        
         _canvas = GameObject.Find("Canvas");
         var board = _canvas.transform.Find( "Board" );
         var glGroup = board.GetComponent<GridLayoutGroup>();
         var boardPos = board.transform.position;
         _cellSize = glGroup.cellSize;
         _spacing = glGroup.spacing;
-        
+        _cellSize *= scale;
+        _spacing *= scale;
         GameManager.AddClearListener(OnClear);
         GameManager.AddRestartListener(StartCreatingAnimation);
 
