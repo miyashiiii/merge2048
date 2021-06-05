@@ -5,13 +5,6 @@ using Random = UnityEngine.Random;
 
 public static class BoardData
 {
-    public static int[][] CurrentBoard;
-
-
-    public static int[][] IsNewBoard;
-
-    public static int[][] MoveNumBoard;
-    public static int[][] DeleteAfterMoveBoard;
 
 
     public static int MovesCount;
@@ -31,21 +24,21 @@ public static class BoardData
         StartTime = Time.time;
 
         // Debug.Log("Board Init");
-        CurrentBoard = new[]
+        GameManager.CurrentBoard = new[]
         {
             new[] {0, 0, 0, 0},
             new[] {0, 0, 0, 0},
             new[] {0, 0, 0, 0},
             new[] {0, 0, 0, 0},
         };
-        IsNewBoard = new[]
+        GameManager.IsNewBoard = new[]
         {
             new[] {0, 0, 0, 0},
             new[] {0, 0, 0, 0},
             new[] {0, 0, 0, 0},
             new[] {0, 0, 0, 0},
         };
-        DeleteAfterMoveBoard = new[]
+        GameManager.DeleteAfterMoveBoard = new[]
         {
             new[] {0, 0, 0, 0},
             new[] {0, 0, 0, 0},
@@ -89,7 +82,7 @@ public static class BoardData
         // select panel
         var p = Config.fixPut ? 2 : Util.RandomWithWeight(Config.PanelRatioMap);
 
-        var emptyIndices = GetEmptyIndices(CurrentBoard);
+        var emptyIndices = GetEmptyIndices(GameManager.CurrentBoard);
         if (emptyIndices.Count == 0)
         {
             // do nothing if cannot move
@@ -113,8 +106,8 @@ public static class BoardData
     {
         var (row, col) = NumToIndex(idx);
         Debug.Log("[PUT] idx: " + idx + ", row" + row + ", col" + col);
-        CurrentBoard[row][col] = panelNum;
-        IsNewBoard[row][col] = 1;
+        GameManager.CurrentBoard[row][col] = panelNum;
+        GameManager.IsNewBoard[row][col] = 1;
     }
 
 
@@ -244,7 +237,7 @@ public static class BoardData
 
     public static bool Move(Direction direction)
     {
-        IsNewBoard = new[]
+        GameManager.IsNewBoard = new[]
         {
             new[] {0, 0, 0, 0},
             new[] {0, 0, 0, 0},
@@ -252,11 +245,11 @@ public static class BoardData
             new[] {0, 0, 0, 0},
         };
 
-        Util.ListDebugLog("board: ", CurrentBoard);
+        Util.ListDebugLog("board: ", GameManager.CurrentBoard);
 
         bool isMove;
-        (isMove, MoveNumBoard, DeleteAfterMoveBoard, CurrentBoard, IsNewBoard) =
-            CalcMoveByDirection(CurrentBoard, direction);
+        (isMove, GameManager.MoveNumBoard, GameManager.DeleteAfterMoveBoard, GameManager.CurrentBoard, GameManager.IsNewBoard) =
+            CalcMoveByDirection(GameManager.CurrentBoard, direction);
         if (!isMove)
         {
             return false;
@@ -268,10 +261,10 @@ public static class BoardData
 
     public static bool CheckFinish()
     {
-        var rotateBoard = Util.RotateBoardClockwise(CurrentBoard);
+        var rotateBoard = Util.RotateBoardClockwise(GameManager.CurrentBoard);
         for (var i = 0; i < 4; i++)
         {
-            var row = CurrentBoard[i];
+            var row = GameManager.CurrentBoard[i];
             if (row.Contains(0)) return false;
             var col = rotateBoard[i];
             if (col.Contains(0)) return false;

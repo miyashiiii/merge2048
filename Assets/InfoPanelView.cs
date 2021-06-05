@@ -113,12 +113,12 @@ public class InfoPanelView : MonoBehaviour
             {
                 try
                 {
-                    boardStr += BoardData.CurrentBoard[i][j];
+                    boardStr += GameManager.CurrentBoard[i][j];
                 }
                 catch (NullReferenceException)
                 {
                     Util.JagListDebugLog("####### ERROR _board ######## i: " + i + ", j: " + j + ", board",
-                        BoardData.CurrentBoard);
+                        GameManager.CurrentBoard);
                 }
             }
 
@@ -134,7 +134,7 @@ public class InfoPanelView : MonoBehaviour
             {
                 try
                 {
-                    moveBoardStr += BoardData.MoveNumBoard[i][j];
+                    moveBoardStr += GameManager.MoveNumBoard[i][j];
                 }
                 catch (NullReferenceException)
                 {
@@ -153,7 +153,7 @@ public class InfoPanelView : MonoBehaviour
             {
                 try
                 {
-                    deleteAfterMoveStr += BoardData.DeleteAfterMoveBoard[i][j];
+                    deleteAfterMoveStr += GameManager.DeleteAfterMoveBoard[i][j];
                 }
                 catch (NullReferenceException)
                 {

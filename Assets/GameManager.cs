@@ -18,6 +18,14 @@ public class GameManager : MonoBehaviour
 
     InputManager inputManager = new InputManager();
 
+    public static int[][] CurrentBoard;
+
+
+    public static int[][] IsNewBoard;
+
+    public static int[][] MoveNumBoard;
+    public static int[][] DeleteAfterMoveBoard;
+    
     public void Start()
     {
 

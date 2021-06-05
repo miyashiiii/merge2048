@@ -98,11 +98,11 @@ public static class BoardView
                 {
                     tmpBoard[row][col] = 0;
                     tmpInstances[row][col] = null;
-                    var moveNum = BoardData.MoveNumBoard[row][col];
+                    var moveNum = GameManager.MoveNumBoard[row][col];
                     var instance = Instances[row][col];
                     // tmpBoard[row][col] = ReferenceEquals(instance, null) ? 0 : int.Parse(instance.name[0].ToString());
                     // 移動せずマージする場合はオブジェクト削除
-                    if (moveNum == 0 && BoardData.DeleteAfterMoveBoard[row][col] == 1)
+                    if (moveNum == 0 && GameManager.DeleteAfterMoveBoard[row][col] == 1)
                     {
                         Object.Destroy(instance);
                         Instances[row][col] = null;
@@ -117,14 +117,14 @@ public static class BoardView
         {
             for (var col = 0; col < 4; col++)
             {
-                var moveSquare = BoardData.MoveNumBoard[row][col];
+                var moveSquare = GameManager.MoveNumBoard[row][col];
                 if (moveSquare == 0)
                 {
                     continue;
                 }
 
                 // 最終フレームかつ削除するパネルなら削除してcontinue
-                if (Config.MoveFrames == _countMoveFrames && BoardData.DeleteAfterMoveBoard[row][col] == 1)
+                if (Config.MoveFrames == _countMoveFrames && GameManager.DeleteAfterMoveBoard[row][col] == 1)
                 {
                     Object.Destroy(Instances[row][col]);
                     Instances[row][col] = null;
@@ -148,7 +148,7 @@ public static class BoardView
             {
                 for (var col = 0; col < 4; col++)
                 {
-                    var moveSquare = BoardData.MoveNumBoard[row][col];
+                    var moveSquare = GameManager.MoveNumBoard[row][col];
 
                     var (nextRow, nextCol) = DirectionInAnimation.GETNext(moveSquare, row, col);
 
@@ -186,12 +186,12 @@ public static class BoardView
 
     private static void CreatingAnimation()
     {
-        Util.JagListDebugLog("IsNewBoard", BoardData.IsNewBoard);
+        Util.JagListDebugLog("IsNewBoard", GameManager.IsNewBoard);
         for (var row = 0; row < 4; row++)
         {
             for (var col = 0; col < 4; col++)
             {
-                var isNewSquare = BoardData.IsNewBoard[row][col];
+                var isNewSquare = GameManager.IsNewBoard[row][col];
                 if (isNewSquare == 0)
                 {
                     continue;
@@ -212,7 +212,7 @@ public static class BoardView
                 // var (row, col) = NumToIndex(idx);
                 if (_countCreateFrames == 0)
                 {
-                    var panelNum = BoardData.CurrentBoard[row][col];
+                    var panelNum = GameManager.CurrentBoard[row][col];
                     if (panelNum == 0)
                     {
                         Debug.Log("---- ERROR empty panel put ----");
@@ -222,8 +222,8 @@ public static class BoardView
                     // Debug.Log("Put");
                     var instance = Object.Instantiate(p, _posArray[row][col], Quaternion.identity);
                     instance.transform.SetParent(_canvas.transform);
-                    BoardData.CurrentBoard[row][col] = panelNum;
-                    BoardData.IsNewBoard[row][col] = 1;
+                    GameManager.CurrentBoard[row][col] = panelNum;
+                    GameManager.IsNewBoard[row][col] = 1;
                     Instances[row][col] = instance;
                 }
 
