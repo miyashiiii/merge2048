@@ -1,4 +1,8 @@
-# Swipe2048
+# Merge2048
 
-## environment
-- Unity 2019.4.18f1
+![ScreenRecording](githubAssets/ScreenRecording.gif "ScreenRecording")
+
+## Built With
+- Unity 2020.3.9f1
+
+
