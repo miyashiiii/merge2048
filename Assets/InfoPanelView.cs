@@ -60,13 +60,8 @@ public class InfoPanelView : MonoBehaviour
     void OnFinish()
     {
         var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
-        if (highScore < BoardData.Score)
-        {
-            PlayerPrefs.SetInt("HIGH_SCORE", BoardData.Score);
-            PlayerPrefs.Save();
-
-            highScoreText.GetComponent<Text>().text = BoardData.Score.ToString();
-        }
+            highScoreText.GetComponent<Text>().text = GameManager.Score.ToString();
+        
 
         debugTextBoxDown.GetComponent<Text>().text = "GameOver";
         debugTextBoxDown.SetActive(true);
@@ -88,7 +83,7 @@ public class InfoPanelView : MonoBehaviour
 
         movesText.GetComponent<Text>().text = GameManager.MovesCount.ToString();
 
-        scoreText.GetComponent<Text>().text = BoardData.Score.ToString();
+        scoreText.GetComponent<Text>().text = GameManager.Score.ToString();
 
         if (InGame)
         {

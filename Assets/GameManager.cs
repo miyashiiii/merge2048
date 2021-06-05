@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
         StatusFinish,
     }
     public static int MovesCount;
+    public static int Score;
 
     private static int[][] GetEmptyBoard()
     {
@@ -47,6 +48,7 @@ public class GameManager : MonoBehaviour
         DeleteAfterMoveBoard = GetEmptyBoard();
 
         MovesCount = 0;
+        Score = 0;
 
         BoardData.Init();
         OnRestart.Invoke();
@@ -94,7 +96,8 @@ public class GameManager : MonoBehaviour
         IsNewBoard = GetEmptyBoard();
         DeleteAfterMoveBoard = GetEmptyBoard();
         MovesCount = 0;
- 
+        Score = 0;
+
         BoardData.Init();
         OnRestart.Invoke();
     }
@@ -105,15 +108,17 @@ public class GameManager : MonoBehaviour
     public static void Move(Direction direction)
     {
         IsNewBoard = GetEmptyBoard();
-        Util.ListDebugLog("board: ", GameManager.CurrentBoard);
+        Util.ListDebugLog("board: ", CurrentBoard);
          bool isMove;
-        (isMove, GameManager.MoveNumBoard, GameManager.DeleteAfterMoveBoard, GameManager.CurrentBoard, GameManager.IsNewBoard) =
-            BoardData.CalcMoveByDirection(GameManager.CurrentBoard, direction);
+         int score;
+        (isMove, score,MoveNumBoard, DeleteAfterMoveBoard, CurrentBoard, IsNewBoard) =
+            BoardData.CalcMoveByDirection(CurrentBoard, direction);
         if (!isMove)
         {
             return ;
         }
 
+        Score += score;
         MovesCount++;
 
 
@@ -136,6 +141,14 @@ public class GameManager : MonoBehaviour
     public static void Finish()
     {
         status = Status.StatusWaitingInput;
+        var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
+ 
+        if (highScore < Score)
+        {
+            PlayerPrefs.SetInt("HIGH_SCORE", Score);
+            PlayerPrefs.Save();
+
+        }
         OnFinish.Invoke();
     }
 
