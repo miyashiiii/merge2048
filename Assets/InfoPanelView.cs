@@ -106,81 +106,17 @@ public class InfoPanelView : MonoBehaviour
         //2: move
         //3: deleteAfterMove
         //4: instance
-        var boardStr = "";
-        for (var i = 0; i < 4; i++)
-        {
-            for (var j = 0; j < 4; j++)
-            {
-                try
-                {
-                    boardStr += GameManager.CurrentBoard[i][j];
-                }
-                catch (NullReferenceException)
-                {
-                    Util.JagListDebugLog("####### ERROR _board ######## i: " + i + ", j: " + j + ", board",
-                        GameManager.CurrentBoard);
-                }
-            }
-
-            boardStr += "\n";
-        }
-
+        var boardStr = GameManager.CurrentBoard.ToStr();
         debugTextBoxUp1.GetComponent<Text>().text = boardStr;
 
-        var moveBoardStr = "";
-        for (var i = 0; i < 4; i++)
-        {
-            for (var j = 0; j < 4; j++)
-            {
-                try
-                {
-                    moveBoardStr += GameManager.MoveNumBoard[i][j];
-                }
-                catch (NullReferenceException)
-                {
-                }
-            }
-
-            moveBoardStr += "\n";
-        }
-
+        var moveBoardStr = GameManager.MoveNumBoard.ToStr();
         debugTextBoxUp2.GetComponent<Text>().text = moveBoardStr;
+        
         // Board.Update("left"); 
-        var deleteAfterMoveStr = "";
-        for (var i = 0; i < 4; i++)
-        {
-            for (var j = 0; j < 4; j++)
-            {
-                try
-                {
-                    deleteAfterMoveStr += GameManager.DeleteAfterMoveBoard[i][j];
-                }
-                catch (NullReferenceException)
-                {
-                }
-            }
-
-            deleteAfterMoveStr += "\n";
-        }
-
+        var deleteAfterMoveStr = GameManager.DeleteAfterMoveBoard.ToStr();
         debugTextBoxUp3.GetComponent<Text>().text = deleteAfterMoveStr;
-        var instancesStr = "";
-        for (var i = 0; i < 4; i++)
-        {
-            for (var j = 0; j < 4; j++)
-            {
-                try
-                {
-                    instancesStr += BoardView.Instances[i][j].name[0];
-                }
-                catch
-                {
-                }
-            }
-
-            instancesStr += "\n";
-        }
-
+        
+        var instancesStr = BoardView.Instances.ToStr();
         debugTextBoxUp4.GetComponent<Text>().text = instancesStr;
     }
 }
