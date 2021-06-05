@@ -7,7 +7,6 @@ public static class BoardData
 {
 
 
-    public static int MovesCount;
     public static int Score;
 
 
@@ -23,34 +22,10 @@ public static class BoardData
     {
         StartTime = Time.time;
 
-        // Debug.Log("Board Init");
-        GameManager.CurrentBoard = new[]
-        {
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-        };
-        GameManager.IsNewBoard = new[]
-        {
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-        };
-        GameManager.DeleteAfterMoveBoard = new[]
-        {
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-        };
-
 
         RandPut();
         RandPut();
         Score = 0;
-        MovesCount = 0;
     }
 
 
@@ -228,36 +203,13 @@ public static class BoardData
         return (isMove, moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
     }
 
-    private static (bool, int[][], int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, Direction direction)
+    public static (bool, int[][], int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, Direction direction)
     {
         return CalcMoveWithConvert(jagBoard, direction.ConvertFunc, direction.ReverseFunc);
     }
 
     // public static int[][] MergedBoard;
 
-    public static bool Move(Direction direction)
-    {
-        GameManager.IsNewBoard = new[]
-        {
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-            new[] {0, 0, 0, 0},
-        };
-
-        Util.ListDebugLog("board: ", GameManager.CurrentBoard);
-
-        bool isMove;
-        (isMove, GameManager.MoveNumBoard, GameManager.DeleteAfterMoveBoard, GameManager.CurrentBoard, GameManager.IsNewBoard) =
-            CalcMoveByDirection(GameManager.CurrentBoard, direction);
-        if (!isMove)
-        {
-            return false;
-        }
-
-        MovesCount++;
-        return true;
-    }
 
     public static bool CheckFinish()
     {

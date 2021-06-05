@@ -8,10 +8,22 @@ public class GameManager : MonoBehaviour
 {
     public enum Status
     {
-        StatusWaitingInput ,
-        StatusInMovingAnimation ,
-        StatusInCreateAnimation ,
-        StatusFinish ,
+        StatusWaitingInput,
+        StatusInMovingAnimation,
+        StatusInCreateAnimation,
+        StatusFinish,
+    }
+    public static int MovesCount;
+
+    private static int[][] GetEmptyBoard()
+    {
+        return new[]
+        {
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+            new[] {0, 0, 0, 0},
+        };
     }
 
     public static Status status = Status.StatusWaitingInput;
@@ -25,14 +37,19 @@ public class GameManager : MonoBehaviour
 
     public static int[][] MoveNumBoard;
     public static int[][] DeleteAfterMoveBoard;
-    
+
     public void Start()
     {
-
         BoardView.Init(); //DataのInitより先に
+        // Debug.Log("Board Init");
+        CurrentBoard = GetEmptyBoard();
+        IsNewBoard = GetEmptyBoard();
+        DeleteAfterMoveBoard = GetEmptyBoard();
+
+        MovesCount = 0;
+
         BoardData.Init();
         OnRestart.Invoke();
- 
     }
 
     public void Update()
@@ -72,9 +89,13 @@ public class GameManager : MonoBehaviour
 
     public static void Reset()
     {
-        
         OnClear.Invoke();
-        BoardData.Init(); 
+        CurrentBoard = GetEmptyBoard();
+        IsNewBoard = GetEmptyBoard();
+        DeleteAfterMoveBoard = GetEmptyBoard();
+        MovesCount = 0;
+ 
+        BoardData.Init();
         OnRestart.Invoke();
     }
 
@@ -83,9 +104,17 @@ public class GameManager : MonoBehaviour
 
     public static void Move(Direction direction)
     {
-        var isMove = BoardData.Move(direction);
+        IsNewBoard = GetEmptyBoard();
+        Util.ListDebugLog("board: ", GameManager.CurrentBoard);
+         bool isMove;
+        (isMove, GameManager.MoveNumBoard, GameManager.DeleteAfterMoveBoard, GameManager.CurrentBoard, GameManager.IsNewBoard) =
+            BoardData.CalcMoveByDirection(GameManager.CurrentBoard, direction);
+        if (!isMove)
+        {
+            return ;
+        }
 
-        if (!isMove) return;
+        MovesCount++;
 
 
         BoardView.DirectionInAnimation = direction;

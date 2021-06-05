@@ -86,7 +86,7 @@ public class InfoPanelView : MonoBehaviour
     {
         UpdateDebugTexts();
 
-        movesText.GetComponent<Text>().text = BoardData.MovesCount.ToString();
+        movesText.GetComponent<Text>().text = GameManager.MovesCount.ToString();
 
         scoreText.GetComponent<Text>().text = BoardData.Score.ToString();
 
@@ -101,7 +101,7 @@ public class InfoPanelView : MonoBehaviour
 
     void UpdateDebugTexts()
     {
-        debugTextBoxDown2.GetComponent<Text>().text = BoardData.MovesCount.ToString();
+        debugTextBoxDown2.GetComponent<Text>().text = GameManager.MovesCount.ToString();
         //1: board
         //2: move
         //3: deleteAfterMove
