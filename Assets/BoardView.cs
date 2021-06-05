@@ -6,9 +6,7 @@ public static class BoardView
     private static GameObject _canvas;
     private static Vector2[][] _posArray;
 
-
     private static readonly NumPanel NumPanel = new NumPanel();
-
 
     private static int _countMoveFrames;
 
@@ -100,14 +98,12 @@ public static class BoardView
                     tmpInstances[row][col] = null;
                     var moveNum = GameManager.MoveNumBoard[row][col];
                     var instance = Instances[row][col];
-                    // tmpBoard[row][col] = ReferenceEquals(instance, null) ? 0 : int.Parse(instance.name[0].ToString());
                     // 移動せずマージする場合はオブジェクト削除
                     if (moveNum == 0 && GameManager.DeleteAfterMoveBoard[row][col] == 1)
                     {
                         Object.Destroy(instance);
                         Instances[row][col] = null;
 
-                        // _instances[row][col] = null;
                     }
                 }
             }
@@ -142,7 +138,6 @@ public static class BoardView
 
         if (Config.MoveFrames == _countMoveFrames)
         {
-            // int[][] putCheckBoard = new int[4][];
 
             for (var row = 0; row < 4; row++)
             {
@@ -175,7 +170,6 @@ public static class BoardView
         }
 
         _countMoveFrames = 0;
-        // Status = StatusWaitingInput;
 
         // MergedBoard に従って画面更新
         BoardData.RandPut();
@@ -209,7 +203,6 @@ public static class BoardView
                     scale += (Config.CreateFrames - _countCreateFrames - 1) * scalePerFrame;
                 }
 
-                // var (row, col) = NumToIndex(idx);
                 if (_countCreateFrames == 0)
                 {
                     var panelNum = GameManager.CurrentBoard[row][col];
@@ -237,7 +230,7 @@ public static class BoardView
     public static void StartCreatingAnimation()
 
     {
-        GameManager.status = GameManager.Status.StatusInCreateAnimation;
+        GameManager.Status = GameManager.GameStatus.StatusInCreateAnimation;
         CreatingAnimation();
     }
 
@@ -263,11 +256,11 @@ public static class BoardView
         }
         else
         {
-            GameManager.status = GameManager.Status.StatusWaitingInput;
+            GameManager.Status = GameManager.GameStatus.StatusWaitingInput;
         }
     }
 
-    public static void OnClear()
+    private static void OnClear()
     {
         for (var row = 0; row < 4; row++)
         {

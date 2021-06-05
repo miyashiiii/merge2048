@@ -5,11 +5,8 @@ public class InputManager
     private Vector3 _touchStartPos;
     private Vector3 _touchEndPos;
 
-
-
     public Direction GetInput()
     {
-        
         Direction direction = null;
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
@@ -51,7 +48,7 @@ public class InputManager
     }
 
 
-    Direction GetFlickDirection()
+    private Direction GetFlickDirection()
     {
         var directionX = _touchEndPos.x - _touchStartPos.x;
         var directionY = _touchEndPos.y - _touchStartPos.y;

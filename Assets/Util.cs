@@ -70,7 +70,7 @@ public static class Util
         return RotateBoard90(board, clockwise: false);
     }
 
-    public static int[][] RotateBoard90(int[][] board, bool clockwise)
+    private static int[][] RotateBoard90(int[][] board, bool clockwise)
     {
         const int rows = 4;
         const int cols = 4;

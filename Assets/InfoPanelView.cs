@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,7 +20,6 @@ public class InfoPanelView : MonoBehaviour
     public GameObject timeText;
     public GameObject undoButton;
     public GameObject redoButton;
-    public GameObject resetButton;
 
 
     // Start is called before the first frame update
@@ -57,24 +55,24 @@ public class InfoPanelView : MonoBehaviour
         GameManager.AddClearListener(OnClear);
     }
 
-    void OnFinish()
+    private void OnFinish()
     {
         var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
-            highScoreText.GetComponent<Text>().text = GameManager.Score.ToString();
+        highScoreText.GetComponent<Text>().text = highScore.ToString();
         
 
         debugTextBoxDown.GetComponent<Text>().text = "GameOver";
         debugTextBoxDown.SetActive(true);
-        InGame = false;
+        _inGame = false;
     }
 
-    void OnClear()
+    private void OnClear()
     {
         debugTextBoxDown.SetActive(false);
-        InGame = true;
+        _inGame = true;
     }
 
-    private bool InGame = true;
+    private bool _inGame = true;
 
     // Update is called once per frame
     private void Update()
@@ -85,7 +83,7 @@ public class InfoPanelView : MonoBehaviour
 
         scoreText.GetComponent<Text>().text = GameManager.Score.ToString();
 
-        if (InGame)
+        if (_inGame)
         {
             var time = Time.time - GameManager.StartTime;
             var mm = ((int) time / 60).ToString("00");
@@ -94,7 +92,7 @@ public class InfoPanelView : MonoBehaviour
         }
     }
 
-    void UpdateDebugTexts()
+    private void UpdateDebugTexts()
     {
         debugTextBoxDown2.GetComponent<Text>().text = GameManager.MovesCount.ToString();
         //1: board

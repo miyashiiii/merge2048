@@ -105,7 +105,6 @@ public static class BoardData
                     }
 
                     deleteIdxPool = colCount;
-                    // mergedColCount++;
                     // mergedへのAddは保留
                 }
                 else if (before == num) // beforeと同パネル -> マージ
@@ -161,15 +160,10 @@ public static class BoardData
     }
 
 
-    public delegate int[][] ConvertBoard(int[][] board);
-
     private static (bool, int, int[][], int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard,
         Util.ConvertBoard convertFunc,
         Util.ConvertBoard reverseFunc)
     {
-        // int[][] tmpMergedBoard;
-        // int[][] tmpMoveBoard;
-        // int[][] tmpIsNewBoard;
         var convertedBoard = convertFunc(jagBoard);
         var (isMove, score, tmpMoveBoard, tmpDeleteAfterMoveBoarD, tmpMergedBoard, tmpIsNewBoard) =
             CalcMove(convertedBoard);
@@ -186,8 +180,6 @@ public static class BoardData
     {
         return CalcMoveWithConvert(jagBoard, direction.ConvertFunc, direction.ReverseFunc);
     }
-
-    // public static int[][] MergedBoard;
 
 
     public static bool CheckFinish()

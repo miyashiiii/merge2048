@@ -1,18 +1,17 @@
-using System;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public enum Status
+    public enum GameStatus
     {
         StatusWaitingInput,
         StatusInMovingAnimation,
         StatusInCreateAnimation,
         StatusFinish,
     }
+
     public static int MovesCount;
     public static int Score;
     public static float StartTime;
@@ -28,43 +27,39 @@ public class GameManager : MonoBehaviour
         };
     }
 
-    public static Status status = Status.StatusWaitingInput;
+    public static GameStatus Status = GameStatus.StatusWaitingInput;
 
-    InputManager inputManager = new InputManager();
+    private readonly InputManager _inputManager = new InputManager();
 
     public static int[][] CurrentBoard;
-
-
-    public static int[][] IsNewBoard;
-
-    public static int[][] MoveNumBoard;
-    public static int[][] DeleteAfterMoveBoard;
+    public static int[][] IsNewBoard; // 新規作成フラグ。CreateAnimationに使用
+    public static int[][] MoveNumBoard; //移動するマス数
+    public static int[][] DeleteAfterMoveBoard;//移動後削除フラグ
 
     public void Start()
     {
-        BoardView.Init(); //DataのInitより先に
-        // Debug.Log("Board Init");
+        BoardView.Init(); //InitBoardより先に
         InitBoard();
-        OnRestart.Invoke();
+        _onRestart.Invoke();
     }
 
     public void Update()
     {
-        var direction = inputManager.GetInput();
+        var direction = _inputManager.GetInput();
         if (direction != null)
         {
             DirectionQue.Enqueue(direction);
         }
 
-        switch (status)
+        switch (Status)
         {
-            case Status.StatusInMovingAnimation:
+            case GameStatus.StatusInMovingAnimation:
                 BoardView.ContinueMovingAnimation();
                 return;
-            case Status.StatusInCreateAnimation:
+            case GameStatus.StatusInCreateAnimation:
                 BoardView.ContinueCreatingAnimation();
                 return;
-            case Status.StatusFinish:
+            case GameStatus.StatusFinish:
                 DirectionQue.Clear();
                 return;
         }
@@ -75,7 +70,7 @@ public class GameManager : MonoBehaviour
         }
 
         var firstDirection = DirectionQue.Dequeue();
-        if (status == Status.StatusFinish)
+        if (Status == GameStatus.StatusFinish)
         {
             return;
         }
@@ -94,80 +89,80 @@ public class GameManager : MonoBehaviour
         BoardData.RandPut();
         BoardData.RandPut();
     }
+
     public static void Reset()
     {
-        OnClear.Invoke();
+        _onClear.Invoke();
         InitBoard();
-        OnRestart.Invoke();
+        _onRestart.Invoke();
     }
 
 
     private static readonly Queue<Direction> DirectionQue = new Queue<Direction>();
 
-    public static void Move(Direction direction)
+    private static void Move(Direction direction)
     {
         IsNewBoard = GetEmptyBoard();
         Util.ListDebugLog("board: ", CurrentBoard);
-         bool isMove;
-         int score;
-        (isMove, score,MoveNumBoard, DeleteAfterMoveBoard, CurrentBoard, IsNewBoard) =
+        bool isMove;
+        int score;
+        (isMove, score, MoveNumBoard, DeleteAfterMoveBoard, CurrentBoard, IsNewBoard) =
             BoardData.CalcMoveByDirection(CurrentBoard, direction);
         if (!isMove)
         {
-            return ;
+            return;
         }
 
         Score += score;
         MovesCount++;
 
-
         BoardView.DirectionInAnimation = direction;
 
         // moveBoardに従って移動アニメーション
         BoardView.MovingAnimation();
-        status = Status.StatusInMovingAnimation;
+        Status = GameStatus.StatusInMovingAnimation;
     }
 
-    private static UnityEvent OnFinish = null;
+    private static UnityEvent _onFinish;
 
     public static void AddFinishListener(UnityAction a)
     {
         // FinishEventがnullなら作成
-        OnFinish ??= new UnityEvent();
-        OnFinish.AddListener(a);
+        _onFinish ??= new UnityEvent();
+        _onFinish.AddListener(a);
     }
 
     public static void Finish()
     {
-        status = Status.StatusWaitingInput;
+        Status = GameStatus.StatusWaitingInput;
         var highScore = PlayerPrefs.GetInt("HIGH_SCORE");
- 
+
         if (highScore < Score)
         {
             PlayerPrefs.SetInt("HIGH_SCORE", Score);
             PlayerPrefs.Save();
-
         }
-        OnFinish.Invoke();
+
+        _onFinish.Invoke();
     }
 
 
-    private static UnityEvent OnClear = null;
+    private static UnityEvent _onClear;
 
     public static void AddClearListener(UnityAction a)
     {
         // ResetEventがnullなら作成
-        OnClear ??= new UnityEvent();
-        OnClear.AddListener(a);
+        _onClear ??= new UnityEvent();
+        _onClear.AddListener(a);
     }
 
 
     // restart 
-    private static UnityEvent OnRestart = null;
+    private static UnityEvent _onRestart;
 
     public static void AddRestartListener(UnityAction a)
     {
-        OnRestart ??= new UnityEvent();
-        OnRestart.AddListener(a);
+        _onRestart ??= new UnityEvent();
+        _onRestart.AddListener(a);
     }
 }
