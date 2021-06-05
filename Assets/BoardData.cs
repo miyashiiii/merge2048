@@ -5,28 +5,6 @@ using Random = UnityEngine.Random;
 
 public static class BoardData
 {
-
-
-
-
-    public static float StartTime;
-
-    public static void Init()
-    {
-        InitBoard();
-    }
-
-
-    private static void InitBoard()
-    {
-        StartTime = Time.time;
-
-
-        RandPut();
-        RandPut();
-    }
-
-
     private static List<int> GetEmptyIndices(int[][] board)
     {
         return GetIndices(0, board);
@@ -84,7 +62,7 @@ public static class BoardData
     }
 
 
-    private static (bool, int,int[][], int[][], int[][], int[][]) CalcMove(int[][] rows)
+    private static (bool, int, int[][], int[][], int[][], int[][]) CalcMove(int[][] rows)
     {
         var isMove = false;
         var score = 0;
@@ -179,13 +157,13 @@ public static class BoardData
             rowCount++;
         }
 
-        return (isMove, score,moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
+        return (isMove, score, moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
     }
 
 
     public delegate int[][] ConvertBoard(int[][] board);
 
-    private static (bool, int,int[][], int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard,
+    private static (bool, int, int[][], int[][], int[][], int[][]) CalcMoveWithConvert(int[][] jagBoard,
         Util.ConvertBoard convertFunc,
         Util.ConvertBoard reverseFunc)
     {
@@ -193,16 +171,18 @@ public static class BoardData
         // int[][] tmpMoveBoard;
         // int[][] tmpIsNewBoard;
         var convertedBoard = convertFunc(jagBoard);
-        var (isMove,score ,tmpMoveBoard, tmpDeleteAfterMoveBoarD, tmpMergedBoard, tmpIsNewBoard) = CalcMove(convertedBoard);
+        var (isMove, score, tmpMoveBoard, tmpDeleteAfterMoveBoarD, tmpMergedBoard, tmpIsNewBoard) =
+            CalcMove(convertedBoard);
 
         var mergedBoard = reverseFunc(tmpMergedBoard);
         var moveBoard = reverseFunc(tmpMoveBoard);
         var deleteAfterMoveBoard = reverseFunc(tmpDeleteAfterMoveBoarD);
         var isNewBoard = reverseFunc(tmpIsNewBoard);
-        return (isMove, score ,moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
+        return (isMove, score, moveBoard, deleteAfterMoveBoard, mergedBoard, isNewBoard);
     }
 
-    public static (bool, int,int[][], int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard, Direction direction)
+    public static (bool, int, int[][], int[][], int[][], int[][]) CalcMoveByDirection(int[][] jagBoard,
+        Direction direction)
     {
         return CalcMoveWithConvert(jagBoard, direction.ConvertFunc, direction.ReverseFunc);
     }

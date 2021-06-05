@@ -87,7 +87,7 @@ public class InfoPanelView : MonoBehaviour
 
         if (InGame)
         {
-            var time = Time.time - BoardData.StartTime;
+            var time = Time.time - GameManager.StartTime;
             var mm = ((int) time / 60).ToString("00");
             var ss = ((int) time % 60).ToString("00");
             timeText.GetComponent<Text>().text = mm + ":" + ss;

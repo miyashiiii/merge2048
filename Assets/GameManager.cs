@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     }
     public static int MovesCount;
     public static int Score;
+    public static float StartTime;
 
     private static int[][] GetEmptyBoard()
     {
@@ -43,14 +44,7 @@ public class GameManager : MonoBehaviour
     {
         BoardView.Init(); //DataのInitより先に
         // Debug.Log("Board Init");
-        CurrentBoard = GetEmptyBoard();
-        IsNewBoard = GetEmptyBoard();
-        DeleteAfterMoveBoard = GetEmptyBoard();
-
-        MovesCount = 0;
-        Score = 0;
-
-        BoardData.Init();
+        InitBoard();
         OnRestart.Invoke();
     }
 
@@ -89,16 +83,21 @@ public class GameManager : MonoBehaviour
         Move(firstDirection);
     }
 
-    public static void Reset()
+    private static void InitBoard()
     {
-        OnClear.Invoke();
         CurrentBoard = GetEmptyBoard();
         IsNewBoard = GetEmptyBoard();
         DeleteAfterMoveBoard = GetEmptyBoard();
         MovesCount = 0;
         Score = 0;
-
-        BoardData.Init();
+        StartTime = Time.time;
+        BoardData.RandPut();
+        BoardData.RandPut();
+    }
+    public static void Reset()
+    {
+        OnClear.Invoke();
+        InitBoard();
         OnRestart.Invoke();
     }
 
